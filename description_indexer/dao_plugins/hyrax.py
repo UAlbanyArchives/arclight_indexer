@@ -62,20 +62,28 @@ class Hyrax(DaoSystem):
 
 		# requires tika-app.jar file in $TIKA_PATH
 		tika_path = "\"" + str(path.join(environ.get("TIKA_PATH"), "tika-app.jar")) + "\""
-		print (tika_path)
-		print (" ".join(["java", "-jar", tika_path, "--json", dao.href]))
-		tika_json = subprocess.Popen(" ".join(["java", "-jar", tika_path, "--json", dao.href]), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		metadatacmd = " ".join(["java", "-jar", tika_path, "--json", dao.href])
+		contentcmd = " ".join(["java", "-jar", tika_path, "--text", dao.href])
+		tika_json = subprocess.Popen(metadatacmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out, err = tika_json.communicate()
-		print (tika_json.returncode)
-		#if len(err) > 0:
-		#	print (err)
-		#	raise Exception("Unable to access Apache Tika. Is $TIKA_PATH set correctly?")
-		tika_metadata = json.load(out.decode('utf8'))
+		if tika_json.returncode != 0:
+			print (err)
+			raise Exception("Unable to access Apache Tika. Is $TIKA_PATH set correctly?")
+		tika_metadata = json.loads(out.decode('Windows-1252'))
+		dao.mime_type = tika_metadata['Content-Type']
 		for key in tika_metadata.keys():
-			print ("\n" + key)
+			if key not in dao.metadata:
+				dao.metadata[key] = str(tika_metadata[key])
+			else:
+				print (key + ": " + str(tika_metadata[key]))
+		tika_content = subprocess.Popen(contentcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		out, err = tika_content.communicate()
+		if tika_content.returncode != 0:
+			print (err)
+			raise Exception("Unable to access Apache Tika. Is $TIKA_PATH set correctly?")
+		dao.content = out.decode('Windows-1252')
 
 
 		#filename = fields.StringField()
-		#mime_type = fields.StringField()
 
 		return dao

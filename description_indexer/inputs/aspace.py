@@ -267,6 +267,8 @@ class ArchivesSpace():
                                 dao = DigitalObject()
                                 if instance["is_representative"] == True and file_version["is_representative"] == True:
                                     dao.is_representative = "true"
+                                else:
+                                    dao.is_representative = "false"
                                 if "file_uri" in file_version.keys():
                                     dao.href = file_version['file_uri']
                                     dao.label = digital_object['title']

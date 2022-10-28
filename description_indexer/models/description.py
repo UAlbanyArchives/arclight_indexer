@@ -42,6 +42,7 @@ class DigitalObject(models.Base):
     metadata = fields.DictField()
     thumbnail_href = fields.StringField()
     rights_statement = fields.StringField()
+    content = fields.StringField()
 
 class Component(models.Base):
     id = fields.StringField(required=True)

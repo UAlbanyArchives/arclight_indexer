@@ -1,3 +1,4 @@
+import json
 import copy
 import pysolr
 from description_indexer.models.arclight import SolrCollection, SolrComponent
@@ -274,27 +275,35 @@ class Arclight():
                 containers_ssim.append(" ".join(sub_sub_container_string))
         solrDocument.containers_ssim = containers_ssim
 
-        """
+        
         if len(record.digital_objects) < 1:
             has_dao = False
-        elif len(record.digital_objects) == 1 and record.digital_objects.is_representative == True:
+        elif len(record.digital_objects) == 1 and record.digital_objects[0].is_representative == "true":
+            has_dao = True
             solrDocument.href_sim = record.digital_objects[0].href
-            solrDocument.thumbnail_href_sim = record.digital_objects[0].thumbnail_href
+            solrDocument.thumbnail_href_sim = [record.digital_objects[0].thumbnail_href]
             solrDocument.label_ssm = record.digital_objects[0].label
-            solrDocument.identifier_sim = record.digital_objects[0].identifier
+            solrDocument.dao_identifier_sim = record.digital_objects[0].identifier
             solrDocument.is_representative_sim = record.digital_objects[0].is_representative
             solrDocument.filename_sim = record.digital_objects[0].filename
             solrDocument.mime_type_sim = record.digital_objects[0].mime_type
             solrDocument.rights_statement_ssm = record.digital_objects[0].rights_statement
-            for field in record.digital_objects[0].metadata.keys():
-                setattr(solrDocument, field + "_ssm", record.digital_objects[0].metadata[field])
-            #content_ssm
+            #for field in record.digital_objects[0].metadata.keys():
+            #    setattr(solrDocument, field + "_ssm", record.digital_objects[0].metadata[field])
+            solrDocument.content_ssm = record.digital_objects[0].content
+        else:
+            print (record.title)
+            print (len(record.digital_objects))
+            print (record.digital_objects[0].is_representative)
+            has_dao = False #for now
+        """
+        gotta sort this out
         else:
             for digital_object in record.digital_objects:
                 dao_component = SolrComponent()
-
                 solrDocument.components.append(subcomponent)
-        """
+
+        
         has_dao = False
         daos = []
         for digital_object in record.digital_objects:
@@ -302,6 +311,7 @@ class Arclight():
             dao = "{\"label\":\"" + digital_object.label + "\",\"href\":\"" + digital_object.href + "\"}"
             daos.append(str(dao))
         solrDocument.digital_objects_ssm = daos
+        """
         
         if has_dao:
             has_online_content.add(record.id.replace(".", "-"))
@@ -321,3 +331,4 @@ class Arclight():
 
         print ("POSTing data to Solr...")
         self.solr.add([collection.to_struct()])
+        #print (json.dumps(collection.to_struct(), indent=4))
