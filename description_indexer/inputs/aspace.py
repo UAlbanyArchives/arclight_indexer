@@ -261,7 +261,7 @@ class ArchivesSpace():
                         # So ASpace DAOs can have multiple file versions for some reason so 
                         # I guess I'm making a new dao for each with the same label?
                         for file_version in digital_object['file_versions']:
-                            if "publish" in file_version.keys() and file_version != True:
+                            if "publish" in file_version.keys() and file_version['publish'] != True:
                                 pass
                             else:
                                 dao = DigitalObject()

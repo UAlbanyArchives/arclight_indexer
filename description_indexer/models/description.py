@@ -39,7 +39,7 @@ class DigitalObject(models.Base):
     # Not typically managed with description
     filename = fields.StringField()
     mime_type = fields.StringField()
-    metadata = fields.ListField(dict)
+    metadata = fields.DictField()
     thumbnail_href = fields.StringField()
     rights_statement = fields.StringField()
 
