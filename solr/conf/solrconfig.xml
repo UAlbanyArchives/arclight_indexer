@@ -161,15 +161,15 @@
          names_coll_ssim
          places_ssim
          
-         href_sim
+         href_ssm
          thumbnail_href_sim
-         label_ssm
-         dao_identifier_sim
-         is_representative_sim
-         filename_sim
-         mime_type_sim
-         rights_statement_ssm
-         content_ssm
+         label_ssi
+         dao_identifier_ssi
+         is_representative_ssm
+         filename_ssi
+         mime_type_ssi
+         rights_statement_ssi
+         content_sim
        </str>
 
        <str name="facet">true</str>

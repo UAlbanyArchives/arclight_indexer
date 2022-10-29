@@ -280,17 +280,17 @@ class Arclight():
             has_dao = False
         elif len(record.digital_objects) == 1 and record.digital_objects[0].is_representative == "true":
             has_dao = True
-            solrDocument.href_sim = record.digital_objects[0].href
-            solrDocument.thumbnail_href_sim = [record.digital_objects[0].thumbnail_href]
-            solrDocument.label_ssm = record.digital_objects[0].label
-            solrDocument.dao_identifier_sim = record.digital_objects[0].identifier
-            solrDocument.is_representative_sim = record.digital_objects[0].is_representative
-            solrDocument.filename_sim = record.digital_objects[0].filename
-            solrDocument.mime_type_sim = record.digital_objects[0].mime_type
-            solrDocument.rights_statement_ssm = record.digital_objects[0].rights_statement
+            solrDocument.href_ssm = record.digital_objects[0].href
+            solrDocument.thumbnail_href_sim = record.digital_objects[0].thumbnail_href
+            solrDocument.label_ssi = record.digital_objects[0].label
+            solrDocument.dao_identifier_ssi = record.digital_objects[0].identifier
+            solrDocument.is_representative_ssm = record.digital_objects[0].is_representative
+            solrDocument.filename_ssi = record.digital_objects[0].filename
+            solrDocument.mime_type_ssi = record.digital_objects[0].mime_type
+            solrDocument.rights_statement_ssi = record.digital_objects[0].rights_statement
             #for field in record.digital_objects[0].metadata.keys():
             #    setattr(solrDocument, field + "_ssm", record.digital_objects[0].metadata[field])
-            solrDocument.content_ssm = record.digital_objects[0].content
+            solrDocument.content_tesim = record.digital_objects[0].content
         else:
             print (record.title)
             print (len(record.digital_objects))
