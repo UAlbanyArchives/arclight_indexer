@@ -84,8 +84,8 @@ class SolrCollection(models.Base):
     components = fields.ListField()
 
     # I guess collections can have representative DAOs
-    href_ssm = fields.StringField()
-    thumbnail_href_sim = fields.StringField()
+    href_ssi = fields.StringField()
+    thumbnail_href_ssm = fields.StringField()
     label_ssi = fields.StringField()
     dao_identifier_ssi = fields.StringField()
     is_representative_ssm = fields.StringField()

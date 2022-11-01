@@ -1,8 +1,13 @@
 import os
 import json
+import shutil
 import requests
+import mimetypes
 import subprocess
 from description_indexer.dao_plugins import DaoSystem
+
+from urllib.request import urlopen
+import cgi
 
 class Hyrax(DaoSystem):
 	dao_system_name = "hyrax"
@@ -75,19 +80,15 @@ class Hyrax(DaoSystem):
 				dao.href = fileURL
 				dao.thumbnail_href = fileURL + "?file=thumbnail"
 
-		# maps tika metadata to technical metadata in solr		
-		tika_mappings = {
-			"date": "file_embeded_date",
-			"title": "file_embeded_title",
-			"Application-Name": "file_embeded_application_name",
-			"Author": "file_embeded_author",
-			"Company": "file_embeded_company",
-			"Content-Length": "file_embeded_content_length",
-			"Creation-Date": "file_embeded_creation_date",
-			"Edit-Time": "file_embeded_edit_time",
-			"Last-Author": "file_embeded_last_author",
-			"Last-Modified": "file_embeded_last_modified"
-		}
+		# Gotta get the filename from Content-Disposition for mimetype
+		remotefile = urlopen(dao.href)
+		content_data = remotefile.info()['Content-Disposition']
+		value, params = cgi.parse_header(content_data)
+		filename = params["filename"]
+
+		mimetype = mimetypes.MimeTypes().guess_type(filename)[0]
+		dao.mime_type = mimetype
+		dao.metadata["filename"] = filename
 
 		# requires tika-app.jar file in $TIKA_PATH
 		if os.name == "nt":
@@ -96,34 +97,13 @@ class Hyrax(DaoSystem):
 		else:
 			tika_encoding = "utf-8"
 		tika_path = "\"" + str(os.path.join(os.environ.get("TIKA_PATH"), "tika-app.jar")) + "\""
-		metadatacmd = " ".join(["java", "-jar", tika_path, "--json", dao.href])
-		contentcmd = " ".join(["java", "-jar", tika_path, "--text", dao.href])
+		tika_cmd = " ".join(["java", "-jar", tika_path, "--text", dao.href])
 
-		tika_json = subprocess.Popen(metadatacmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		out, err = tika_json.communicate()
-		if tika_json.returncode != 0:
-			print (err)
-			raise Exception("Unable to access Apache Tika. Is $TIKA_PATH set correctly?")
-		tika_metadata = json.loads(out.decode(tika_encoding))
-		dao.mime_type = tika_metadata['Content-Type']
-		for key in tika_metadata.keys():
-			#print (key)
-			#print ("\t" + str(tika_metadata[key]))
-			if key in tika_mappings:
-				dao.metadata[tika_mappings[key]] = tika_metadata[key]
-			#if key not in dao.metadata:
-			#	dao.metadata[key] = str(tika_metadata[key])
-			#else:
-			#	print (key + ": " + str(tika_metadata[key]))
-
-		tika_content = subprocess.Popen(contentcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		tika_content = subprocess.Popen(tika_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out, err = tika_content.communicate()
 		if tika_content.returncode != 0:
 			print (err)
 			raise Exception("Unable to access Apache Tika. Is $TIKA_PATH set correctly?")
 		dao.content = out.decode(tika_encoding)
-
-
-		#filename = fields.StringField()
 
 		return dao

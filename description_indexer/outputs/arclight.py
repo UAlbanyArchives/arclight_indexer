@@ -280,8 +280,8 @@ class Arclight():
             has_dao = False
         elif len(record.digital_objects) == 1 and record.digital_objects[0].is_representative == "true":
             has_dao = True
-            solrDocument.href_ssm = record.digital_objects[0].href
-            solrDocument.thumbnail_href_sim = record.digital_objects[0].thumbnail_href
+            solrDocument.href_ssi = record.digital_objects[0].href
+            solrDocument.thumbnail_href_ssm = record.digital_objects[0].thumbnail_href
             solrDocument.label_ssi = record.digital_objects[0].label
             solrDocument.dao_identifier_ssi = record.digital_objects[0].identifier
             solrDocument.is_representative_ssm = record.digital_objects[0].is_representative
