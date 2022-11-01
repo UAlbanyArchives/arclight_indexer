@@ -285,12 +285,13 @@ class Arclight():
             solrDocument.label_ssi = record.digital_objects[0].label
             solrDocument.dao_identifier_ssi = record.digital_objects[0].identifier
             solrDocument.is_representative_ssm = record.digital_objects[0].is_representative
-            solrDocument.filename_ssi = record.digital_objects[0].filename
             solrDocument.mime_type_ssi = record.digital_objects[0].mime_type
             solrDocument.rights_statement_ssi = record.digital_objects[0].rights_statement
-            #for field in record.digital_objects[0].metadata.keys():
-            #    setattr(solrDocument, field + "_ssm", record.digital_objects[0].metadata[field])
+            solrDocument.access_subjects_ssim.extend(record.digital_objects[0].subjects)
+            for field in record.digital_objects[0].metadata.keys():
+                setattr(solrDocument, field + "_ssm", record.digital_objects[0].metadata[field])
             solrDocument.content_tesim = record.digital_objects[0].content
+            solrDocument.content_teim = record.digital_objects[0].content
         else:
             print (record.title)
             print (len(record.digital_objects))

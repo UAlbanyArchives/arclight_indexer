@@ -8,6 +8,9 @@ from .configurator import Config
 from description_indexer.outputs.arclight import Arclight
 from description_indexer.inputs.aspace import ArchivesSpace
 
+#tmp
+from datetime import datetime
+
 parser = argparse.ArgumentParser(description='Description_Indexer manages archival description.')
 parser.add_argument('--id', nargs="+", help='One or more ASpace id_0s to index.')
 parser.add_argument('--uri', nargs="+", help='One or more ASpace collection uri integers to index, such as 755 for /resources/755.')
@@ -20,6 +23,7 @@ parser.add_argument('--core', nargs=1, help='A solr core, such as blacklight-cor
 #parser.add_argument('--ead', default=False, action="store_true", help='Optionally write to a EAD file(s).')
 
 def index():
+	startTime = datetime.now()
 	config = Config()
 	args = parser.parse_args()
 	#print (args)
@@ -66,4 +70,5 @@ def index():
 		with open(Path.home() / ".description_indexer.yml", "w") as f:
 			yaml.dump(config.__dict__, f)
 		print (f"Stored last run time as: {endTimeHuman}")
+		print (datetime.now() - startTime)
 		

@@ -129,6 +129,13 @@
          title_tesim
        </str>
 
+       <str name="qf_content">
+         content_teim
+       </str>
+       <str name="pf_content">
+         content_teim
+       </str>
+
        <int name="ps">3</int>
        <float name="tie">0.01</float>
 
@@ -169,7 +176,7 @@
          filename_ssi
          mime_type_ssi
          rights_statement_ssi
-         content_sim
+         content_teim
        </str>
 
        <str name="facet">true</str>

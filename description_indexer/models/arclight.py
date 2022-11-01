@@ -89,11 +89,12 @@ class SolrCollection(models.Base):
     label_ssi = fields.StringField()
     dao_identifier_ssi = fields.StringField()
     is_representative_ssm = fields.StringField()
-    filename_ssi = fields.StringField()
     mime_type_ssi = fields.StringField()
     #metadata = fields.ListField(dict)
     rights_statement_ssi = fields.StringField()
     content_tesim = fields.StringField()
+    content_teim = fields.StringField()
+
     
 
 class SolrComponent(SolrCollection):

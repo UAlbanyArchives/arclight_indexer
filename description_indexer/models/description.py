@@ -37,11 +37,11 @@ class DigitalObject(models.Base):
     # In ASpace, not EAD
     is_representative = fields.StringField(required=True)
     # Not typically managed with description
-    filename = fields.StringField()
     mime_type = fields.StringField()
     metadata = fields.DictField()
     thumbnail_href = fields.StringField()
     rights_statement = fields.StringField()
+    subjects = fields.ListField(str)
     content = fields.StringField()
 
 class Component(models.Base):
