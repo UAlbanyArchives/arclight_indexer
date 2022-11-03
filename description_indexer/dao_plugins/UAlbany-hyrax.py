@@ -271,7 +271,7 @@ class Hyrax(DaoSystem):
 						tika_href = dao.file_versions[exts.index(priority)].href
 						tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", tika_href])
 						#print ("running " + tika_cmd)
-						tika_content = subprocess.Popen(tika_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+						tika_content = subprocess.Popen(tika_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 						out, err = tika_content.communicate()
 						if tika_content.returncode != 0:
 							print (err)
