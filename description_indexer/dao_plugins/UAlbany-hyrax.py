@@ -65,10 +65,10 @@ class Hyrax(DaoSystem):
 
 			dao.metadata = {}
 			#print ("reading data from " + dao.uri + "?format=json")
-			try:
-				record_json = requests.get(dao.uri + "?format=json").json()
-			except:
+			if dao.uri.startswith("https://archives.albany.edu/catalog?f%5Barchivesspace_record_tesim"):
 				print (dao.uri)
+				record_json = requests.get(dao.uri + "?format=json").json()
+			else:
 				record_json = requests.get(dao.uri + "?format=json").json()
 
 			dao.identifier = record_json['id']
