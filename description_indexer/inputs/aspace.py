@@ -238,7 +238,7 @@ class ArchivesSpace():
                                 raise ValueError(subnote)
                     setattr(record, note["type"], note_text)
 
-        daos = []
+        has_published_daos = False
         for instance in apiObject["instances"]:
             if "sub_container" in instance.keys():
                 container = Container()
@@ -273,6 +273,7 @@ class ArchivesSpace():
                             if "publish" in file_version.keys() and file_version['publish'] != True:
                                 pass
                             else:
+                                has_published_daos = True
                                 fv = FileVersion()
                                 # treating aspace file version representative as "is access file"
                                 if file_version["is_representative"] == True:
@@ -282,9 +283,10 @@ class ArchivesSpace():
                                 if "file_uri" in file_version.keys():
                                     fv.href = file_version['file_uri']
                                     dao.file_versions.append(fv)
-                        record.digital_objects.append(dao)
+                        if has_published_daos:
+                            record.digital_objects.append(dao)
 
-        if len(record.digital_objects) > 0:                
+        if has_published_daos:             
             # Reconcile digital object data from outside systems
             # Uses plugins for parsing this data from different applications
             for dao_system in self.dao_systems:

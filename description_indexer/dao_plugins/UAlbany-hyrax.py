@@ -61,7 +61,7 @@ class Hyrax(DaoSystem):
 			if fv_count == 1:
 				dao.uri = dao.file_versions[0].href
 			else:
-				raise Exception ("!!! --> ASpace DAO unexpectedly has multiple file versions!")			
+				raise Exception ("ASpace DAO unexpectedly has multiple file versions! --> " + str(dao.uri))			
 
 			dao.metadata = {}
 			#print ("reading data from " + dao.uri + "?format=json")
