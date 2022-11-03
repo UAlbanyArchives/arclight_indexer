@@ -29,20 +29,37 @@ class Container(models.Base):
     sub_sub_container = fields.StringField()
     sub_sub_container_indicator = fields.StringField()
 
-class DigitalObject(models.Base):
-    # In EAD and ASpace
+class FileVersion(models.Base):
+    # This is also a pcdm:File
     href = fields.StringField(required=True)
+    label = fields.StringField()
+    filename = fields.StringField()
+    is_access = fields.StringField()
+    is_original = fields.StringField()
+    mime_type = fields.StringField()
+
+class DigitalObject(models.Base):
+    # This is also a pcdm:Object
+    # In EAD and ASpace
+    uri = fields.StringField()
     label = fields.StringField(required=True)
     identifier = fields.StringField()
     # In ASpace, not EAD
+    # As in "Is this representative of the entire component?"
     is_representative = fields.StringField(required=True)
+
     # Not typically managed with description
-    mime_type = fields.StringField()
-    metadata = fields.DictField()
+    #fulfillment stuff
     thumbnail_href = fields.StringField()
     rights_statement = fields.StringField()
+    #digital object-level metadata
+    metadata = fields.DictField()
     subjects = fields.ListField(str)
+
+    file_versions = fields.ListField(FileVersion)
+    # Searchable text or transcription content
     content = fields.StringField()
+    
 
 class Component(models.Base):
     id = fields.StringField(required=True)
@@ -87,3 +104,5 @@ class Component(models.Base):
     containers = fields.ListField(Container)
     digital_objects = fields.ListField(DigitalObject)
     components = fields.ListField()
+    # this should actually be a component attribute since its an aggregate
+    iiif_manifest = fields.StringField()

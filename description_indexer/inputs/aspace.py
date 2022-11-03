@@ -3,7 +3,7 @@ import sys
 from iso639 import languages
 from asnake.client import ASnakeClient
 import asnake.logging as logging
-from description_indexer.models.description import Component, Date, Extent, Agent, Container, DigitalObject
+from description_indexer.models.description import Component, Date, Extent, Agent, Container, DigitalObject, FileVersion
 from description_indexer.utils import iso2DACS
 from description_indexer.dao_plugins import DaoSystem, import_dao_plugins
 
@@ -46,7 +46,7 @@ class ArchivesSpace():
         self.dao_systems = []
         for system in self.dao_system_map.keys():
             dao_system: DaoSystem = self.dao_system_map[system]
-            self.dao_systems.append(dao_system)
+            self.dao_systems.append(dao_system())
 
     @property
     def dao_system_map(self):
@@ -257,26 +257,36 @@ class ArchivesSpace():
             elif instance['instance_type'] == "digital_object":
                 digital_object = self.client.get(instance['digital_object']['ref']).json()
                 if digital_object['publish'] == True:
+                    # Since this model is for public-facing description, requiring a published file version with a uri otherwise treating as unpublished 
                     if "file_versions" in digital_object.keys() and len(digital_object['file_versions']) > 0:
-                        # So ASpace DAOs can have multiple file versions for some reason so 
-                        # I guess I'm making a new dao for each with the same label?
+                        dao = DigitalObject()
+                        dao.label = digital_object['title']
+                        dao.identifier = digital_object['digital_object_id']
+                        if instance["is_representative"] == True:
+                            dao.is_representative = "true"
+                        else:
+                            dao.is_representative = "false"
+                        
                         for file_version in digital_object['file_versions']:
                             if "publish" in file_version.keys() and file_version['publish'] != True:
                                 pass
                             else:
-                                dao = DigitalObject()
-                                if instance["is_representative"] == True and file_version["is_representative"] == True:
-                                    dao.is_representative = "true"
+                                fv = FileVersion()
+                                # treating aspace file version representative as "is access file"
+                                if file_version["is_representative"] == True:
+                                    fv.is_access = "true"
                                 else:
-                                    dao.is_representative = "false"
+                                    fv.is_access = "false"
                                 if "file_uri" in file_version.keys():
-                                    dao.href = file_version['file_uri']
-                                    dao.label = digital_object['title']
-                                    dao.identifier = digital_object['digital_object_id']
-                                    for dao_system in self.dao_systems:
-                                        dao = dao_system.read_data(dao)
-                                    record.digital_objects.append(dao)
+                                    fv.href = file_version['file_uri']
+                                    dao.file_versions.append(fv)
+                        record.digital_objects.append(dao)
 
+        if len(record.digital_objects) > 0:                
+            # Reconcile digital object data from outside systems
+            # Uses plugins for parsing this data from different applications
+            for dao_system in self.dao_systems:
+                record = dao_system.read_data(record)
         
         recursive_level += 1
 

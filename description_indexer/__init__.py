@@ -51,8 +51,8 @@ def index():
 		elif args.id:
 			for collection_id in args.id:
 				record = aspace.read(collection_id)
-				solrDoc = arclight.convert(record)
-				arclight.post(solrDoc)
+				#solrDoc = arclight.convert(record)
+				#arclight.post(solrDoc)
 				print (f"Indexed {collection_id}")
 		elif args.uri:
 			for collection_uri in args.uri:

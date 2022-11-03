@@ -48,7 +48,7 @@ def import_dao_plugins(additional_dirs=None):
         for filename in listdir(plugin_dir):
             module = basename(filename)[:-3]
             full_path = join(plugin_dir, filename)
-            # skip if not a normal, non underscored file ending in .py
-            if module.startswith("_") or not isfile(full_path) or filename[-3:] != ".py":
+            # skip if not a normal, non underscored file ending in .py, or example.py
+            if module == "example" or module.startswith("_") or not isfile(full_path) or filename[-3:] != ".py":
                 continue
             SourceFileLoader(module, full_path).load_module()
