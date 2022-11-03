@@ -65,7 +65,11 @@ class Hyrax(DaoSystem):
 
 			dao.metadata = {}
 			#print ("reading data from " + dao.uri + "?format=json")
-			record_json = requests.get(dao.uri + "?format=json").json()
+			try:
+				record_json = requests.get(dao.uri + "?format=json").json()
+			except:
+				print (dao.uri)
+				record_json = requests.get(dao.uri + "?format=json").json()
 
 			dao.identifier = record_json['id']
 			metadata_fields = {

@@ -316,7 +316,7 @@ class Arclight():
         else:
             has_dao = True
             do_count = 0
-            solrDocument.child_component_count_isim = child_component_count_isim[0] + len(record.digital_objects)
+            solrDocument.child_component_count_isim = solrDocument.child_component_count_isim[0] + len(record.digital_objects)
             for digital_object in record.digital_objects:
                 dao_component = SolrComponent()
                 dao_component.id = solrDocument.id + "-" + str(do_count)
