@@ -329,12 +329,12 @@ class Arclight():
                 parent_unittitles_ssm = solrDocument.parent_ssim
                 ref_ssm = solrDocument.ref_ssm
                 dao_component.parent_ssim = parent_ssims.append(solrDocument.id)
-                dao_component.parent_unittitles_ssm = parent_unittitles_ssm.append(solrDocument.normalized_title)
+                dao_component.parent_unittitles_ssm = parent_unittitles_ssm.append(solrDocument.normalized_title_ssm)
                 dao_component.ref_ssm = ref_ssm.append(solrDocument.id)
 
                 # for now
-                dao_component.normalized_date = solrDocument.normalized_date
-                dao_component.normalized_title = solrDocument.normalized_title
+                dao_component.normalized_date = solrDocument.normalized_date_ssm
+                dao_component.normalized_title = solrDocument.normalized_title_ssm
                 dao_component.title_ssm = solrDocument.title_ssm
 
                 dao_component = self.convertDigitalObjects(record, dao_component)

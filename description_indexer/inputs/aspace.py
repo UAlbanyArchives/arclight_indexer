@@ -270,7 +270,9 @@ class ArchivesSpace():
                             dao.is_representative = "false"
                         
                         for file_version in digital_object['file_versions']:
-                            if "publish" in file_version.keys() and file_version['publish'] != True:
+                            #if "publish" in file_version.keys() and file_version['publish'] != True:
+                            # Turning off requiring published file versions for now since we have lots of unpublish ones that need to be fixed
+                            if "file_uri" in file_version.keys():
                                 pass
                             else:
                                 has_published_daos = True
