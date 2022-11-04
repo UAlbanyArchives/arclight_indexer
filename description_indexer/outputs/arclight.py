@@ -320,7 +320,7 @@ class Arclight():
             for digital_object in record.digital_objects:
                 dao_component = SolrComponent()
                 dao_component.id = solrDocument.id + "-" + str(do_count)
-                dao_component.component_level_isim = solrDocument.component_level_isim[0] + 1
+                dao_component.component_level_isim = [solrDocument.component_level_isim[0] + 1]
                 dao_component.ead_ssi = solrDocument.ead_ssi
                 dao_component.level_ssm = ["Digital Object"]
                 dao_component.repository_ssm = solrDocument.repository_ssm
