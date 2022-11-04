@@ -79,8 +79,11 @@ class Hyrax(DaoSystem):
 				record_json = requests.get(dao.uri + "?format=json").json()
 
 			# In cases where there's only one DO, in local practice, it's representative unless its set as "part"
-			if only_dao and "coverage" in record_json.keys() and record_json["coverage"] == "whole":
-				dao.is_representative = "true"
+			if only_dao:
+				if "coverage" in record_json.keys() and record_json["coverage"] == "part":
+					dao.is_representative = "false"
+				else:
+					dao.is_representative = "true"
 
 			dao.identifier = record_json['id']
 			metadata_fields = {
