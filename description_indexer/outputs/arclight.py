@@ -42,20 +42,21 @@ class Arclight():
         return solrComponent
 
 
-    def convertDigitalObjects(self, record, solrDocument):
+    def convertDigitalObjects(self, digital_object, solrDocument):
 
-        solrDocument.content_tesim = record.digital_objects[0].content
-        solrDocument.content_teim = record.digital_objects[0].content
-        solrDocument.thumbnail_href_ssm = record.digital_objects[0].thumbnail_href
-        solrDocument.label_ssi = record.digital_objects[0].label
-        solrDocument.dao_identifier_ssi = record.digital_objects[0].identifier
-        solrDocument.is_representative_ssm = record.digital_objects[0].is_representative
-        solrDocument.rights_statement_ssi = record.digital_objects[0].rights_statement
-        solrDocument.access_subjects_ssim.extend(record.digital_objects[0].subjects)
-        for field in record.digital_objects[0].metadata.keys():
-            setattr(solrDocument, field + "_ssm", record.digital_objects[0].metadata[field])
-        if hasattr(record.digital_objects[0], "iiif_manifest") and len(record.digital_objects[0].iiif_manifest) > 0:
-            solrDocument.iiif_manifest_ssi = record.digital_objects[0].iiif_manifest
+        solrDocument.content_tesim = digital_object.content
+        solrDocument.content_teim = digital_object.content
+        solrDocument.thumbnail_href_ssm = digital_object.thumbnail_href
+        solrDocument.label_ssi = digital_object.label
+        solrDocument.dao_identifier_ssi = digital_object.identifier
+        solrDocument.is_representative_ssm = digital_object.is_representative
+        solrDocument.rights_statement_ssi = digital_object.rights_statement
+        solrDocument.access_subjects_ssim.extend(digital_object.subjects)
+        if digital_object.metadata:
+            for field in digital_object.metadata.keys():
+                setattr(solrDocument, field + "_ssm", digital_object.metadata[field])
+        if hasattr(digital_object, "iiif_manifest") and len(record.digital_objects[0].iiif_manifest) > 0:
+            solrDocument.iiif_manifest_ssi = digital_object.iiif_manifest
         else:
             fv_mappings = {
                 "href": "hrefs_ssm",
@@ -65,7 +66,7 @@ class Arclight():
                 "is_access": "file_access_ssm",
                 "is_original": "file_originals_ssm",
             }
-            for file_version in record.digital_objects[0].file_versions:
+            for file_version in digital_object.file_versions:
                 for desc_attr in fv_mappings.keys():
                     if getattr(file_version, desc_attr) is None:
                         getattr(solrDocument, fv_mappings[desc_attr]).append("")
@@ -312,7 +313,7 @@ class Arclight():
             has_dao = False
         elif len(record.digital_objects) == 1 and record.digital_objects[0].is_representative == "true":
             has_dao = True
-            solrDocument = self.convertDigitalObjects(record, solrDocument)
+            solrDocument = self.convertDigitalObjects(record.digital_objects[0], solrDocument)
         else:
             has_dao = True
             do_count = 0
@@ -323,21 +324,21 @@ class Arclight():
                 dao_component.component_level_isim = [solrDocument.component_level_isim[0] + 1]
                 dao_component.ead_ssi = solrDocument.ead_ssi
                 dao_component.level_ssm = ["Digital Object"]
-                dao_component.repository_ssm = solrDocument.repository_ssm
+                dao_component.repository_ssm = copy.deepcopy(solrDocument.repository_ssm)
 
-                parent_ssims = solrDocument.parent_ssim
-                parent_unittitles_ssm = solrDocument.parent_ssim
-                ref_ssm = solrDocument.ref_ssm
+                parent_ssims = copy.deepcopy(solrDocument.parent_ssim)
+                parent_unittitles_ssm = copy.deepcopy(solrDocument.parent_ssim)
+                ref_ssm = copy.deepcopy(solrDocument.ref_ssm)
                 dao_component.parent_ssim = parent_ssims.append(solrDocument.id)
-                dao_component.parent_unittitles_ssm = parent_unittitles_ssm.append(solrDocument.normalized_title_ssm)
+                dao_component.parent_unittitles_ssm = parent_unittitles_ssm.extend(solrDocument.normalized_title_ssm)
                 dao_component.ref_ssm = ref_ssm.append(solrDocument.id)
 
                 # for now
-                dao_component.normalized_date = solrDocument.normalized_date_ssm
-                dao_component.normalized_title = solrDocument.normalized_title_ssm
-                dao_component.title_ssm = solrDocument.title_ssm
+                dao_component.normalized_date = copy.deepcopy(solrDocument.normalized_date_ssm)
+                dao_component.normalized_title = copy.deepcopy(solrDocument.normalized_title_ssm)
+                dao_component.title_ssm = copy.deepcopy(solrDocument.title_ssm)
 
-                dao_component = self.convertDigitalObjects(record, dao_component)
+                dao_component = self.convertDigitalObjects(digital_object, dao_component)
                 solrDocument.components.append(dao_component)
                 do_count += 1
         
