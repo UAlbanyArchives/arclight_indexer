@@ -329,16 +329,25 @@ class Arclight():
                 parent_ssims = copy.deepcopy(solrDocument.parent_ssim)
                 parent_unittitles_ssm = copy.deepcopy(solrDocument.parent_ssim)
                 ref_ssm = copy.deepcopy(solrDocument.ref_ssm)
-                dao_component.parent_ssim = parent_ssims.append(solrDocument.id)
-                dao_component.parent_unittitles_ssm = parent_unittitles_ssm.extend(solrDocument.normalized_title_ssm)
-                dao_component.ref_ssm = ref_ssm.append(solrDocument.id)
+                parent_ssims.append(solrDocument.ref_ssm[0])
+                parent_unittitles_ssm.extend(solrDocument.normalized_title_ssm)
+                #ref_ssm.append(solrDocument.id)
+                dao_component.parent_ssim = parent_ssims
+                dao_component.parent_ssi = [parent_ssims[-1]]
+                dao_component.parent_unittitles_ssm = parent_unittitles_ssm
+                dao_component.ref_ssm = ref_ssm
 
                 # for now
-                dao_component.normalized_date = copy.deepcopy(solrDocument.normalized_date_ssm)
-                dao_component.normalized_title = copy.deepcopy(solrDocument.normalized_title_ssm)
-                dao_component.title_ssm = copy.deepcopy(solrDocument.title_ssm)
+                dao_date = copy.deepcopy(solrDocument.normalized_date_ssm)
+                dao_normal_title = copy.deepcopy(solrDocument.normalized_title_ssm)
+                dao_title = copy.deepcopy(solrDocument.title_ssm)
+                dao_component.normalized_date_ssm = dao_date
+                dao_component.normalized_title_ssm = dao_normal_title
+                dao_component.title_ssm = dao_title
 
                 dao_component = self.convertDigitalObjects(digital_object, dao_component)
+                #import json
+                #print (json.dumps(dao_component.to_struct(), indent=4))
                 solrDocument.components.append(dao_component)
                 do_count += 1
         
