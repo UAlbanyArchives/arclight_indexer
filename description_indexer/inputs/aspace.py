@@ -276,7 +276,7 @@ class ArchivesSpace():
                         for file_version in digital_object['file_versions']:
                             #if "publish" in file_version.keys() and file_version['publish'] != True:
                             # Turning off requiring published file versions for now since we have lots of unpublish ones that need to be fixed
-                            if "file_uri" in file_version.keys():
+                            if not "file_uri" in file_version.keys():
                                 pass
                             else:
                                 has_published_daos = True
@@ -292,7 +292,7 @@ class ArchivesSpace():
                         if has_published_daos:
                             record.digital_objects.append(dao)
 
-        if has_published_daos:             
+        if has_published_daos:
             # Reconcile digital object data from outside systems
             # Uses plugins for parsing this data from different applications
             for dao_system in self.dao_systems:
