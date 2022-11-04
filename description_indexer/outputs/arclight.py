@@ -27,7 +27,7 @@ class Arclight():
         
         if len(has_online_content) > 0:
             if solrDocument.id in has_online_content:
-                solrDocument.has_online_content_ssim = ["true"]
+                solrDocument.has_online_content_ssim = ["Contains online items"]
             solrDocument = self.mark_online_content(solrDocument, has_online_content)
 
         return solrDocument
@@ -36,7 +36,7 @@ class Arclight():
         
         for component in solrComponent.components:
             if component.ref_ssi in has_online_content:
-                component.has_online_content_ssim = ["true"]
+                component.has_online_content_ssim = ["Contains online items"]
             childComponent = self.mark_online_content(component, has_online_content)
 
         return solrComponent
@@ -308,7 +308,7 @@ class Arclight():
                 containers_ssim.append(" ".join(sub_sub_container_string))
         solrDocument.containers_ssim = containers_ssim
 
-        
+        child_daos = []
         if len(record.digital_objects) < 1:
             has_dao = False
         elif len(record.digital_objects) == 1 and record.digital_objects[0].is_representative == "true":
@@ -321,13 +321,16 @@ class Arclight():
             for digital_object in record.digital_objects:
                 dao_component = SolrComponent()
                 dao_component.id = solrDocument.id + "-" + str(do_count)
+                child_daos.append(solrDocument.id + "-" + str(do_count))
                 dao_component.component_level_isim = [solrDocument.component_level_isim[0] + 1]
                 dao_component.ead_ssi = solrDocument.ead_ssi
                 dao_component.level_ssm = ["Digital Object"]
+                dao_component.level_sim = ["Digital Object"]
                 dao_component.repository_ssm = copy.deepcopy(solrDocument.repository_ssm)
+                dao_component.repository_sim = copy.deepcopy(solrDocument.repository_sim)
 
                 parent_ssims = copy.deepcopy(solrDocument.parent_ssim)
-                parent_unittitles_ssm = copy.deepcopy(solrDocument.parent_ssim)
+                parent_unittitles_ssm = copy.deepcopy(solrDocument.parent_unittitles_ssm)
                 ref_ssm = copy.deepcopy(solrDocument.ref_ssm)
                 parent_ssims.append(solrDocument.ref_ssm[0])
                 parent_unittitles_ssm.extend(solrDocument.normalized_title_ssm)
@@ -335,18 +338,36 @@ class Arclight():
                 dao_component.parent_ssim = parent_ssims
                 dao_component.parent_ssi = [parent_ssims[-1]]
                 dao_component.parent_unittitles_ssm = parent_unittitles_ssm
+                parent_unittitles_teim = parent_unittitles_ssm
+                dao_component.parent_levels_ssm = copy.deepcopy(solrDocument.parent_levels_ssm).append(solrDocument.level_ssm[0])
                 dao_component.ref_ssm = ref_ssm
 
-                # for now
                 dao_date = copy.deepcopy(solrDocument.normalized_date_ssm)
                 dao_normal_title = copy.deepcopy(solrDocument.normalized_title_ssm)
-                dao_title = copy.deepcopy(solrDocument.title_ssm)
+                if len(digital_object.label) > 0:
+                    dao_title = [digital_object.label]
+                elif len(digital_object.label) > 0:
+                    dao_title = [digital_object.identifier]
+                else:
+                    dao_title = copy.deepcopy(solrDocument.title_ssm)
+                dao_normal_title = [dao_title[0] + ", " + solrDocument.normalized_date_ssm[0]]
                 dao_component.normalized_date_ssm = dao_date
                 dao_component.normalized_title_ssm = dao_normal_title
                 dao_component.title_ssm = dao_title
+                dao_component.unitdate_ssm = copy.deepcopy(solrDocument.unitdate_ssm)
+
+                dao_component.child_component_count_isim = [0]
+                dao_component.collection_sim = copy.deepcopy(solrDocument.collection_sim)
+                dao_component.collection_ssi = copy.deepcopy(solrDocument.collection_ssi)
+                dao_component.collection_ssm = copy.deepcopy(solrDocument.collection_ssm)
+                dao_component.collection_title_tesim = copy.deepcopy(solrDocument.collection_title_tesim)
+                dao_component.collection_unitid_ssm = copy.deepcopy(solrDocument.collection_unitid_ssm)
+                dao_component.collection_unitid_teim = copy.deepcopy(solrDocument.collection_unitid_teim)
+
+                dao_component.has_online_content_ssim = ["Online access"]
+
 
                 dao_component = self.convertDigitalObjects(digital_object, dao_component)
-                #import json
                 #print (json.dumps(dao_component.to_struct(), indent=4))
                 solrDocument.components.append(dao_component)
                 do_count += 1
@@ -354,6 +375,7 @@ class Arclight():
         if has_dao:
             has_online_content.add(record.id.replace(".", "-"))
             has_online_content.update(parents)
+            has_online_content.update(child_daos)
 
         # bump recursion level
         recursive_level += 1

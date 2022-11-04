@@ -166,10 +166,10 @@ class Hyrax(DaoSystem):
 					do.label = file_object["name"]
 					do.identifier = dao_id + "-" + str(fo_count)
 					do.is_representative = "false"
-					thumbnail_href = file_object["url"] + "?file=thumbnail"
-					dao.rights_statement = rights
-					dao.metadata = metadata
-					dao.subjects = subjects
+					do.thumbnail_href = file_object["url"] + "?file=thumbnail"
+					do.rights_statement = rights
+					do.metadata = metadata
+					do.subjects = subjects
 					fv = FileVersion()
 					fv.href = file_object["url"]
 					fv.is_access = "true"
