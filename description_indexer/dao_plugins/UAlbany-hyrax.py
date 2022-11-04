@@ -50,7 +50,7 @@ class Hyrax(DaoSystem):
 
 		return mimetype
 
-	def read_data(self, component):
+	def read_data(self, component, quick=None):
 
 		for dao in component.digital_objects:
 
@@ -61,9 +61,7 @@ class Hyrax(DaoSystem):
 			if fv_count == 1:
 				dao.uri = dao.file_versions[0].href
 			else:
-				raise Exception ("!!! --> ASpace DAO unexpectedly has multiple file versions!")
-			# All Hyrax objects should have iiif manifests
-			component.iiif_manifest = dao.uri + "/manifest"
+				raise Exception ("!!! --> ASpace DAO unexpectedly has multiple file versions!")			
 
 			dao.metadata = {}
 			#print ("reading data from " + dao.uri + "?format=json")
@@ -151,6 +149,8 @@ class Hyrax(DaoSystem):
 			if len(set(mimes)) > 1 or mimes[0].lower().startswith("image"):
 				#multiformat or aggregate of images
 				component.digital_objects = []
+				if len(set(mimes)) == 1:
+					component.iiif_manifest = dao_uri + "/manifest"
 				fo_count = 0
 				for file_object in file_objects:
 					fo_count += 1
@@ -256,21 +256,24 @@ class Hyrax(DaoSystem):
 
 		for dao in component.digital_objects:
 
-			exts = []
-			for fv in dao.file_versions:
-				exts.append(os.path.splitext(fv.filename)[1])
-			for priority in self.tika_priorities:
-				if priority in exts:
-					tika_href = dao.file_versions[exts.index(priority)].href
-					tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", tika_href])
-					#print ("running " + tika_cmd)
-					tika_content = subprocess.Popen(tika_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-					out, err = tika_content.communicate()
-					if tika_content.returncode != 0:
-						print (err)
-						raise Exception("Unable to access Apache Tika. Is $TIKA_PATH set correctly?")
-					dao.content = out.decode(self.tika_encoding)
+			if quick is True:
+				pass
+			else:
+				exts = []
+				for fv in dao.file_versions:
+					exts.append(os.path.splitext(fv.filename)[1])
+				for priority in self.tika_priorities:
+					if priority in exts:
+						tika_href = dao.file_versions[exts.index(priority)].href
+						tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", tika_href])
+						#print ("running " + tika_cmd)
+						tika_content = subprocess.Popen(tika_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+						out, err = tika_content.communicate()
+						if tika_content.returncode != 0:
+							print (err)
+							raise Exception("Unable to access Apache Tika. Is $TIKA_PATH set correctly?")
+						dao.content = out.decode(self.tika_encoding)
 
-					break
+						break
 
 		return component

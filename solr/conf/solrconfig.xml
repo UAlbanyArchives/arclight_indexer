@@ -168,15 +168,19 @@
          names_coll_ssim
          places_ssim
          
-         href_ssm
+         iiif_manifest_ssi
          thumbnail_href_sim
          label_ssi
          dao_identifier_ssi
          is_representative_ssm
-         filename_ssi
-         mime_type_ssi
          rights_statement_ssi
          content_teim
+         hrefs_ssm
+         mime_types_ssm
+         filenames_ssm
+         file_levels_ssm
+         file_access_ssm
+         file_originals_ssm
        </str>
 
        <str name="facet">true</str>

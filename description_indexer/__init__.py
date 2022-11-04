@@ -18,6 +18,7 @@ parser.add_argument('--hour', default=False, action="store_true", help='Index co
 parser.add_argument('--today', default=False, action="store_true", help='Index collections modified in the last 24 hours.')
 parser.add_argument('--solr_url', nargs=1, help='A solr URL, such as http://127.0.0.1:8983/solr, to override ~/.description_indexer.yml')
 parser.add_argument('--core', nargs=1, help='A solr core, such as blacklight-core, to override ~/.description_indexer.yml')
+parser.add_argument('--quick', default=False, action="store_true", help='Index collections while skipping any digital object processing.')
 #parser.add_argument('--ead', default=False, action="store_true", help='Optionally write to a EAD file(s).')
 
 def index():
@@ -35,7 +36,7 @@ def index():
 			print (f"Deleted {collection_id}")
 	else:
 		arclight = Arclight(config.solr_url + "/" + config.solr_core)
-		aspace = ArchivesSpace()
+		aspace = ArchivesSpace(args.quick)
 		if args.new or args.hour or args.today:
 			if args.new:
 				time_since = config.last_query	
@@ -51,8 +52,8 @@ def index():
 		elif args.id:
 			for collection_id in args.id:
 				record = aspace.read(collection_id)
-				#solrDoc = arclight.convert(record)
-				#arclight.post(solrDoc)
+				solrDoc = arclight.convert(record)
+				arclight.post(solrDoc)
 				print (f"Indexed {collection_id}")
 		elif args.uri:
 			for collection_uri in args.uri:

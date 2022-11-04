@@ -84,16 +84,23 @@ class SolrCollection(models.Base):
     components = fields.ListField()
 
     # I guess collections can have representative DAOs
-    href_ssi = fields.StringField()
+    iiif_manifest_ssi = fields.StringField()
     thumbnail_href_ssm = fields.StringField()
     label_ssi = fields.StringField()
     dao_identifier_ssi = fields.StringField()
     is_representative_ssm = fields.StringField()
-    mime_type_ssi = fields.StringField()
-    #metadata = fields.ListField(dict)
+    metadata = fields.ListField(dict)
     rights_statement_ssi = fields.StringField()
     content_tesim = fields.StringField()
     content_teim = fields.StringField()
+
+    # for file versions if there's no iiif manifest available
+    hrefs_ssm = fields.ListField(str)
+    mime_types_ssm = fields.ListField(str)
+    filenames_ssm = fields.ListField(str)
+    file_labels_ssm = fields.ListField(str)
+    file_access_ssm = fields.ListField(str)
+    file_originals_ssm = fields.ListField(str)
 
     
 

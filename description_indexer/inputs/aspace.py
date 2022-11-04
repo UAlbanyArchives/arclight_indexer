@@ -12,7 +12,7 @@ logging.setup_logging(stream=sys.stdout, level='INFO')
 class ArchivesSpace():
     """This class connects to an ArchivesSpace repository"""
 
-    def __init__(self, repository=2):
+    def __init__(self, quick, repository=2):
         """
         Connects to an ASpace repo using ArchivesSnake.
         Uses URL and login info from ~/.archivessnake.yml
@@ -23,6 +23,8 @@ class ArchivesSpace():
 
         self.client = ASnakeClient()
         self.client.authorize()
+
+        self.quick = quick
 
         self.repo = repository
 
@@ -286,7 +288,7 @@ class ArchivesSpace():
             # Reconcile digital object data from outside systems
             # Uses plugins for parsing this data from different applications
             for dao_system in self.dao_systems:
-                record = dao_system.read_data(record)
+                record = dao_system.read_data(record, self.quick)
         
         recursive_level += 1
 
