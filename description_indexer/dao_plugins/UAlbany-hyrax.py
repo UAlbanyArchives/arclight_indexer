@@ -52,6 +52,10 @@ class Hyrax(DaoSystem):
 
 	def read_data(self, component, quick=None):
 
+		only_dao = False
+		if len(component.digital_objects) == 1:
+			only_dao = True
+
 		for dao in component.digital_objects:
 
 			# in all but a few cases, UA's ASpace file versions actually hold digital object URIs
@@ -73,6 +77,10 @@ class Hyrax(DaoSystem):
 				record_json = requests.get(dao.uri + "?format=json").json()
 			else:
 				record_json = requests.get(dao.uri + "?format=json").json()
+
+			# In cases where there's only one DO, in local practice, it's representative unless its set as "part"
+			if only_dao and "coverage" in record_json.keys() and record_json["coverage"] == "whole":
+				dao.is_representative = "true"
 
 			dao.identifier = record_json['id']
 			metadata_fields = {
