@@ -152,7 +152,11 @@ class ArchivesSpace():
 
         for date in apiObject["dates"]:
             dateObj = Date()
-            dateObj.begin = date['begin']
+            try:
+                dateObj.begin = date['begin']
+            except:
+                print (apiObject)
+                dateObj.begin = date['begin']
             if date['date_type'].lower() == "bulk":
                 dateObj.date_type = "bulk"
             elif date['date_type'].lower() == "inclusive":
