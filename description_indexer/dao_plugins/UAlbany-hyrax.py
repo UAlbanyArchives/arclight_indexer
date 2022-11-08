@@ -68,7 +68,7 @@ class Hyrax(DaoSystem):
 				raise Exception ("ASpace DAO unexpectedly has multiple file versions! --> " + str(dao.uri))			
 
 			dao.metadata = {}
-			print ("reading data from " + dao.uri + "?format=json")
+			#print ("reading data from " + dao.uri + "?format=json")
 			if dao.uri.startswith("https://archives.albany.edu/catalog?f%5Barchivesspace_record_tesim"):
 				print (dao.uri)
 				record_json = requests.get(dao.uri + "?format=json").json()
@@ -170,13 +170,17 @@ class Hyrax(DaoSystem):
 				if len(set(mimes)) == 1:
 					component.iiif_manifest = dao_uri + "/manifest"
 				fo_count = 0
+				if len(file_objects) == 1:
+					representativeness = "true"
+				else:
+					representativeness = "false"
 				for file_object in file_objects:
 					fo_count += 1
 					do = DigitalObject()
 					do.uri = f"https://archives.albany.edu/concern/parent/{dao_uri.rsplit('/', 1)[1]}/file_sets/{file_object['url'].split('/downloads/')[1]}"
 					do.label = file_object["name"]
 					do.identifier = dao_id + "-" + str(fo_count)
-					do.is_representative = "false"
+					do.is_representative = representativeness
 					do.thumbnail_href = file_object["url"] + "?file=thumbnail"
 					do.rights_statement = rights
 					do.metadata = metadata
