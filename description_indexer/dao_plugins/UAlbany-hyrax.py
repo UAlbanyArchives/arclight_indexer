@@ -32,6 +32,7 @@ class Hyrax(DaoSystem):
 
 		self.tika_priorities = (".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls", ".pdf")
 
+
 	def get_mime_type(self, filename):
 
 		docmimes = {
@@ -49,6 +50,7 @@ class Hyrax(DaoSystem):
 			raise Exception("Failed to get mimetype.")
 
 		return mimetype
+
 
 	def read_data(self, component, quick=None):
 
@@ -158,55 +160,31 @@ class Hyrax(DaoSystem):
 			if len(file_objects) == 1:
 				dao.metadata["filename"] = file_objects[0]["name"]
 
-			#these are really Components or aggregages of DOs currently managed in Hyrax
 			rights = dao.rights_statement
 			metadata = dao.metadata
 			subjects = dao.subjects
 			dao_id = dao.identifier
 			dao_uri = dao.uri
-			if len(set(mimes)) > 1 or mimes[0].lower().startswith("image"):
-				#multiformat or aggregate of images
-				component.digital_objects = []
-				if len(set(mimes)) == 1:
-					component.iiif_manifest = dao_uri + "/manifest"
-				fo_count = 0
-				if len(file_objects) == 1:
-					representativeness = "true"
-				else:
-					representativeness = "false"
-				for file_object in file_objects:
-					fo_count += 1
-					do = DigitalObject()
-					do.uri = f"https://archives.albany.edu/concern/parent/{dao_uri.rsplit('/', 1)[1]}/file_sets/{file_object['url'].split('/downloads/')[1]}"
-					do.label = file_object["name"]
-					do.identifier = dao_id + "-" + str(fo_count)
-					do.is_representative = representativeness
-					do.thumbnail_href = file_object["url"] + "?file=thumbnail"
-					do.rights_statement = rights
-					do.metadata = metadata
-					do.subjects = subjects
-					fv = FileVersion()
-					fv.href = file_object["url"]
-					fv.is_access = "true"
-					fv.filename = file_object["name"]
-					fv.mime_type = file_object["mime"]
-					do.file_versions.append(fv)
-					component.digital_objects.append(do)
 
-			else:
-				# single digital objects with multiple versions
+			if len(file_objects) == 1:
+				# digital object with a single file
 
-				original_exts = [".pdf", ".csv"]
+				# single item was uploaded to hyrax, but converted into derivatives
+				# single digital objects that may have multiple versions
+				#original_exts = [".pdf", ".csv"]
 				office_docs = [".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt"]
 				audio_exts = [".mp3"]
 				video_exts = [".mpg", ".mp4", ".mov", ".avi"]
 
-				if len(file_objects) > 1:
-					raise Exception("Unexpected multiple file versions for: " + dao.url)
-
 				if len(set(extentions)) > 1:
 					raise Exception("Unexpectedly discovered multiple file extentions for " + dao.url)
-				ext = extentions[0]
+				else:
+					ext = extentions[0]
+
+				if len(set(mimes)) == 1 and mimes[0].lower().startswith("image"):
+					# for images use iiif
+					dao.iiif_manifest = dao_uri + "/manifest"
+
 				if ext in office_docs:
 					original = FileVersion()
 					original.href = file_objects[0]["url"]
@@ -259,7 +237,8 @@ class Hyrax(DaoSystem):
 					dao.file_versions = []
 					dao.file_versions.append(original)
 					dao.file_versions.append(webm)
-				elif ext in original_exts:
+				else:
+					#elif ext in original_exts:
 					original = FileVersion()
 					original.href = file_objects[0]["url"]
 					original.is_original = "true"
@@ -272,10 +251,42 @@ class Hyrax(DaoSystem):
 						original.label = "Original"
 					dao.file_versions = []
 					dao.file_versions.append(original)
-				else:
-					raise Exception("Unexpected file format for " + dao.uri + " : " + filename)
+				#else:
+				#	raise Exception("Unexpected file format for " + dao.uri + " : " + filename)
+
+			else:
+				# these are really Components or aggregages of DOs currently managed in Hyrax
+				# example: daos/wp988s44h or daos/j9602614q
+				# exceptions: daos/8910kc626
+
+				component.digital_objects = []
+				if len(set(mimes)) == 1 and mimes[0].lower().startswith("image"):
+					# for images use iiif
+					component.iiif_manifest = dao_uri + "/manifest"
+
+				fo_count = 0
+				representativeness = "false"
+				for file_object in file_objects:
+					fo_count += 1
+					do = DigitalObject()
+					do.uri = f"https://archives.albany.edu/concern/parent/{dao_uri.rsplit('/', 1)[1]}/file_sets/{file_object['url'].split('/downloads/')[1]}"
+					do.label = file_object["name"]
+					do.identifier = dao_id + "-" + str(fo_count)
+					do.is_representative = representativeness
+					do.thumbnail_href = file_object["url"] + "?file=thumbnail"
+					do.rights_statement = rights
+					do.metadata = metadata
+					do.subjects = subjects
+					fv = FileVersion()
+					fv.href = file_object["url"]
+					fv.is_access = "true"
+					fv.filename = file_object["name"]
+					fv.mime_type = file_object["mime"]
+					do.file_versions.append(fv)
+					component.digital_objects.append(do)
 
 
+		# Extract content for better discovery
 		for dao in component.digital_objects:
 
 			if quick is True:
@@ -284,6 +295,7 @@ class Hyrax(DaoSystem):
 				exts = []
 				for fv in dao.file_versions:
 					exts.append(os.path.splitext(fv.filename)[1])
+
 				for priority in self.tika_priorities:
 					if priority in exts:
 						tika_href = dao.file_versions[exts.index(priority)].href
