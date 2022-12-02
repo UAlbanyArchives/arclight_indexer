@@ -54,7 +54,7 @@ class Arclight():
             for field in digital_object.metadata.keys():
                 setattr(solrDocument, field + "_ssm", digital_object.metadata[field])
         file_content = []
-        if hasattr(digital_object, "iiif_manifest") and len(digital_object.digital_object.iiif_manifest) > 0:
+        if hasattr(digital_object, "iiif_manifest") and len(digital_object.iiif_manifest) > 0:
             solrDocument.iiif_manifest_ssi = digital_object.iiif_manifest
         else:
             fv_mappings = {

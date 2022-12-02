@@ -284,7 +284,7 @@ class Hyrax(DaoSystem):
 					do.subjects = subjects
 
 					file = File()
-					file.thumbnail_href = file_objects["url"] + "?file=thumbnail"
+					file.thumbnail_href = file_object["url"] + "?file=thumbnail"
 					fv = FileVersion()
 					fv.href = file_object["url"]
 					fv.is_access = "true"
@@ -302,12 +302,13 @@ class Hyrax(DaoSystem):
 				pass
 			else:
 				exts = []
-				for fv in dao.file_versions:
-					exts.append(os.path.splitext(fv.filename)[1])
+				for file in dao.files:
+					for fv in file.versions:
+						exts.append(os.path.splitext(fv.filename)[1])
 
 				for priority in self.tika_priorities:
 					if priority in exts:
-						tika_href = dao.file_versions[exts.index(priority)].href
+						tika_href = dao.files[0].versions[exts.index(priority)].href
 						tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", tika_href])
 						#print ("running " + tika_cmd)
 						tika_content = subprocess.Popen(tika_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
