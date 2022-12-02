@@ -20,18 +20,20 @@ class Tika():
 		if os.name == "nt":
 			# tika uses native encoding grrr
 			self.tika_encoding = "Windows-1252"
+			self.null = "2> $null"
 		else:
 			self.tika_encoding = "utf-8"
+			self.null = "2>/dev/null"
 		self.tika_path = "\"" + str(os.path.join(os.environ.get("TIKA_PATH"), "tika-app.jar")) + "\""
-		self.tika_config = "\"" + str(os.path.join(os.environ.get("TIKA_PATH"), "tika-config.xml")) + "\""
+		self.tika_config = str(os.path.join(os.environ.get("TIKA_PATH"), "tika-config.xml"))
 
 	
 	def extract(self, href):
-
+		
 		if os.path.isfile(self.tika_config):
-			tika_cmd = " ".join(["java", "-jar", self.tika_path, f"--config={self.tika_config}", "--text", href])
+			tika_cmd = " ".join(["java", "-jar", self.tika_path, f"--config=\"{self.tika_config}\"", "--text", href, self.null])
 		else:
-			tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", href])
+			tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", href, self.null])
 
 		#print ("running " + tika_cmd)
 		tika_content = subprocess.Popen(tika_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

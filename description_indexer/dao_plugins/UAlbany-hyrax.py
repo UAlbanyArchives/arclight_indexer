@@ -135,24 +135,28 @@ class Hyrax(DaoSystem):
 			file_objects = []
 			mimes = []
 			extentions = []
+			# some jsondl graphs have duplicate files for some reason
+			dupIDs = []
 			for fileObject in jsonld["@graph"]:
 				if "ore:proxyFor" in fileObject.keys():
 					fileSetID = fileObject["ore:proxyFor"]["@id"].split("archives.albany.edu/catalog/")[1]
-					fileObjectURL = "https://archives.albany.edu/downloads/" + fileSetID
-					# Gotta get the filename from Content-Disposition for mimetype :(
-					remotefile = urlopen(fileObjectURL)
-					content_data = remotefile.info()['Content-Disposition']
-					value, params = cgi.parse_header(content_data)			
-					fileObjectName = params["filename"]
-					fileObjectMimetype = self.get_mime_type(fileObjectName)
-					file_object = {}
-					file_object["url"] = fileObjectURL
-					file_object["name"] = fileObjectName
-					file_object["mime"] = fileObjectMimetype
-					file_object["ext"] = os.path.splitext(fileObjectName)[1].lower()
-					mimes.append(fileObjectMimetype)
-					extentions.append(os.path.splitext(fileObjectName)[1].lower())
-					file_objects.append(file_object)
+					if not fileSetID in dupIDs:
+						dupIDs.append(fileSetID)
+						fileObjectURL = "https://archives.albany.edu/downloads/" + fileSetID
+						# Gotta get the filename from Content-Disposition for mimetype :(
+						remotefile = urlopen(fileObjectURL)
+						content_data = remotefile.info()['Content-Disposition']
+						value, params = cgi.parse_header(content_data)			
+						fileObjectName = params["filename"]
+						fileObjectMimetype = self.get_mime_type(fileObjectName)
+						file_object = {}
+						file_object["url"] = fileObjectURL
+						file_object["name"] = fileObjectName
+						file_object["mime"] = fileObjectMimetype
+						file_object["ext"] = os.path.splitext(fileObjectName)[1].lower()
+						mimes.append(fileObjectMimetype)
+						extentions.append(os.path.splitext(fileObjectName)[1].lower())
+						file_objects.append(file_object)
 
 			dao.thumbnail_href = file_objects[0]["url"] + "?file=thumbnail"
 			if len(file_objects) == 1:
