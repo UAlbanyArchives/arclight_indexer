@@ -7,6 +7,10 @@ import subprocess
 from description_indexer.dao_plugins import DaoSystem
 from description_indexer.models.description import DigitalObject, File, FileVersion
 
+from description_indexer.extractors.tika import Tika
+from description_indexer.extractors.text import Text
+from description_indexer.extractors.ocr import Ocr
+
 from urllib.request import urlopen
 import cgi
 
@@ -16,21 +20,12 @@ class Hyrax(DaoSystem):
 
 	def __init__(self):
 		print (f"Setup {self.dao_system_name} dao system for reading digital object data.")
-		
-		check_java = subprocess.Popen(["java", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		out, err = check_java.communicate()
-		if check_java.returncode != 0:
-			raise Exception("Unable to access Java")
 
-		# requires tika-app.jar file in $TIKA_PATH
-		if os.name == "nt":
-			# tika uses native encoding grrr
-			self.tika_encoding = "Windows-1252"
-		else:
-			self.tika_encoding = "utf-8"
-		self.tika_path = "\"" + str(os.path.join(os.environ.get("TIKA_PATH"), "tika-app.jar")) + "\""
-
-		self.tika_priorities = (".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls", ".pdf")
+		# initalize extractors
+		# Requirements for each need to be installed to initalize
+		self.tika = Tika()
+		self.text = Text()
+		self.ocr = Ocr()
 
 
 	def get_mime_type(self, filename):
@@ -189,6 +184,7 @@ class Hyrax(DaoSystem):
 					dao.iiif_manifest = dao_uri + "/manifest"
 
 				file = File()
+				file.identifier = file_objects[0]["url"].split("?")[0].split("/downloads/")[1]
 				file.thumbnail_href = file_objects[0]["url"] + "?file=thumbnail"
 				if ext in office_docs:
 					original = FileVersion()
@@ -284,6 +280,7 @@ class Hyrax(DaoSystem):
 					do.subjects = subjects
 
 					file = File()
+					file.identifier = file_object["url"].split("?")[0].split("/downloads/")[1]
 					file.thumbnail_href = file_object["url"] + "?file=thumbnail"
 					fv = FileVersion()
 					fv.href = file_object["url"]
@@ -295,29 +292,71 @@ class Hyrax(DaoSystem):
 					do.files.append(file)
 					component.digital_objects.append(do)
 
+		#######################################
+
 		# Extract content for better discovery
+
+		# for versions, this is a priortized list of exts to pull content from
+		priorities = (".txt", ".csv", ".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls", ".pdf", ".jpg", ".png", ".tif", ".wav", ".mp3", ".ogg", ".mpg", ".mp4", ".mov", ".avi", ".webm")
+
+		read_file = (".txt", ".csv")
+		tika_exts = (".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls")
+		tika_ocr = (".pdf")
+		ocr = (".jpg", ".png", ".tif")
+		audio = (".wav", ".mp3", ".ogg")
+		video = (".mpg", ".mp4", ".mov", ".avi", ".webm")
+		
+
 		for dao in component.digital_objects:
 
 			if quick is True:
 				pass
 			else:
-				exts = []
+				cache_path = os.path.join(os.path.expanduser("~"), ".description_indexer", dao.identifier)
+
 				for file in dao.files:
-					for fv in file.versions:
-						exts.append(os.path.splitext(fv.filename)[1])
+					cache_file = os.path.join(cache_path, file.identifier + ".txt")
 
-				for priority in self.tika_priorities:
-					if priority in exts:
-						tika_href = dao.files[0].versions[exts.index(priority)].href
-						tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", tika_href])
-						#print ("running " + tika_cmd)
-						tika_content = subprocess.Popen(tika_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-						out, err = tika_content.communicate()
-						if tika_content.returncode != 0:
-							print (err)
-							raise Exception("Unable to access Apache Tika. Is $TIKA_PATH set correctly?")
-						dao.content = out.decode(self.tika_encoding)
+					if os.path.isfile(cache_file):
+						with open(cache_file, "r") as cache:
+							content = cache.read()
+					else:
 
-						break
+						# Gather a list of all extentions in versions
+						exts = []
+						for fv in file.versions:
+							exts.append(os.path.splitext(fv.filename)[1])
+
+						for priority in priorities:
+							# Get the first match in priorities set
+							if priority in exts:
+								extract_file = file.versions[exts.index(priority)]
+								content = ""
+
+								if priority in read_file:
+									content = self.text.extract(extract_file.href)
+
+								elif priority in tika_exts:
+									content = self.tika.extract(extract_file.href)
+
+								elif priority in tika_ocr:
+									content = self.tika.extract(extract_file.href)
+									if len(content.strip()) < 1:
+										content = self.ocr.extract(extract_file.href)
+
+								elif priority in ocr:
+									content = self.ocr.extract(extract_file.href)
+
+								if len(content.strip()) > 0:
+									# write to disk to speed reindexing
+									if not os.path.isdir(cache_path):
+										os.makedirs(cache_path)
+									with open(cache_file, "w") as cache:
+										cache.write(content)
+
+								break
+
+					file.content = content
+
 
 		return component

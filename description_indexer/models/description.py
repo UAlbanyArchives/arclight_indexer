@@ -39,6 +39,7 @@ class FileVersion(models.Base):
 
 class File(models.Base):
     # This is also a pcdm:File
+    identifier = fields.StringField(required=True)
     label = fields.StringField()
     thumbnail_href = fields.StringField()
     # Searchable text or transcription content
@@ -50,7 +51,7 @@ class DigitalObject(models.Base):
     # In EAD and ASpace
     uri = fields.StringField()
     label = fields.StringField(required=True)
-    identifier = fields.StringField()
+    identifier = fields.StringField(required=True)
     # In ASpace, not EAD
     # As in "Is this representative of the entire component?"
     is_representative = fields.StringField(required=True)

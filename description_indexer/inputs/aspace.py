@@ -273,14 +273,17 @@ class ArchivesSpace():
                         else:
                             dao.is_representative = "false"
                         
+                        fv_count = 0
                         for file_version in digital_object['file_versions']:
                             #if "publish" in file_version.keys() and file_version['publish'] != True:
                             # Turning off requiring published file versions for now since we have lots of unpublish ones that need to be fixed
+                            fv_count += 1
                             if not "file_uri" in file_version.keys():
                                 pass
                             else:
                                 has_published_daos = True
                                 file = File()
+                                file.identifier = dao.identifier + "-" + str(fv_count)
                                 fv = FileVersion()
                                 # treating aspace file version representative as "is access file"
                                 if file_version["is_representative"] == True:
