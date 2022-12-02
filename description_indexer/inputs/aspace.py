@@ -3,7 +3,7 @@ import sys
 from iso639 import languages
 from asnake.client import ASnakeClient
 import asnake.logging as logging
-from description_indexer.models.description import Component, Date, Extent, Agent, Container, DigitalObject, FileVersion
+from description_indexer.models.description import Component, Date, Extent, Agent, Container, DigitalObject, File, FileVersion
 from description_indexer.utils import iso2DACS
 from description_indexer.dao_plugins import DaoSystem, import_dao_plugins
 
@@ -280,6 +280,7 @@ class ArchivesSpace():
                                 pass
                             else:
                                 has_published_daos = True
+                                file = File()
                                 fv = FileVersion()
                                 # treating aspace file version representative as "is access file"
                                 if file_version["is_representative"] == True:
@@ -288,7 +289,8 @@ class ArchivesSpace():
                                     fv.is_access = "false"
                                 if "file_uri" in file_version.keys():
                                     fv.href = file_version['file_uri']
-                                    dao.file_versions.append(fv)
+                                    file.versions.append(fv)
+                                    dao.files.append(file)
                         if has_published_daos:
                             record.digital_objects.append(dao)
 

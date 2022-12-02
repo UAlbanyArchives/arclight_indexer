@@ -44,8 +44,6 @@ class Arclight():
 
     def convertDigitalObjects(self, digital_object, solrDocument):
 
-        solrDocument.content_tesim = digital_object.content
-        solrDocument.content_teim = digital_object.content
         solrDocument.thumbnail_href_ssm = digital_object.thumbnail_href
         solrDocument.label_ssi = digital_object.label
         solrDocument.dao_identifier_ssi = digital_object.identifier
@@ -55,6 +53,7 @@ class Arclight():
         if digital_object.metadata:
             for field in digital_object.metadata.keys():
                 setattr(solrDocument, field + "_ssm", digital_object.metadata[field])
+        file_content = []
         if hasattr(digital_object, "iiif_manifest") and len(digital_object.digital_object.iiif_manifest) > 0:
             solrDocument.iiif_manifest_ssi = digital_object.iiif_manifest
         else:
@@ -66,12 +65,17 @@ class Arclight():
                 "is_access": "file_access_ssm",
                 "is_original": "file_originals_ssm",
             }
-            for file_version in digital_object.file_versions:
-                for desc_attr in fv_mappings.keys():
-                    if getattr(file_version, desc_attr) is None:
-                        getattr(solrDocument, fv_mappings[desc_attr]).append("")
-                    else:
-                        getattr(solrDocument, fv_mappings[desc_attr]).append(getattr(file_version, desc_attr))
+            for file in digital_object.files:
+                if file.content:
+                    file_content.append(file.content)
+                for file_version in file.versions:
+                    for desc_attr in fv_mappings.keys():
+                        if getattr(file_version, desc_attr) is None:
+                            getattr(solrDocument, fv_mappings[desc_attr]).append("")
+                        else:
+                            getattr(solrDocument, fv_mappings[desc_attr]).append(getattr(file_version, desc_attr))
+        solrDocument.content_tesim = "\n---\n".join(file_content)
+        solrDocument.content_teim = "\n---\n".join(file_content)
 
         return solrDocument
 

@@ -5,7 +5,7 @@ import requests
 import mimetypes
 import subprocess
 from description_indexer.dao_plugins import DaoSystem
-from description_indexer.models.description import DigitalObject, FileVersion
+from description_indexer.models.description import DigitalObject, File, FileVersion
 
 from urllib.request import urlopen
 import cgi
@@ -62,10 +62,13 @@ class Hyrax(DaoSystem):
 
 			# in all but a few cases, UA's ASpace file versions actually hold digital object URIs
 			fv_count = 0
-			for fv in dao.file_versions:
-				fv_count += 1
+			for file in dao.files:
+				for fv in file.versions:
+					fv_count += 1
 			if fv_count == 1:
-				dao.uri = dao.file_versions[0].href.strip()
+				dao.uri = dao.files[0].versions[0].href.strip()
+				# clear file added with ASpace data, we'll add the correct file(s) later
+				dao.files = []
 			else:
 				raise Exception ("ASpace DAO unexpectedly has multiple file versions! --> " + str(dao.uri))			
 
@@ -185,6 +188,8 @@ class Hyrax(DaoSystem):
 					# for images use iiif
 					dao.iiif_manifest = dao_uri + "/manifest"
 
+				file = File()
+				file.thumbnail_href = file_objects[0]["url"] + "?file=thumbnail"
 				if ext in office_docs:
 					original = FileVersion()
 					original.href = file_objects[0]["url"]
@@ -204,13 +209,13 @@ class Hyrax(DaoSystem):
 						original.label = "Spreadsheet (original)"
 					elif ext == ".pptx" or ext == ".ppt":
 						original.label = "Powerpoint (original)"
-					dao.file_versions = []
-					dao.file_versions.append(original)
-					dao.file_versions.append(pdf)
+					file.versions.append(original)
+					file.versions.append(pdf)
 				elif ext in audio_exts:
 					mp3 = FileVersion()
 					mp3.href = file_objects[0]["url"] + "?file=mp3"
 					mp3.label = "MP3"
+					mp3.is_original = "true"
 					mp3.filename = file_objects[0]["name"]
 					mp3.mime_type = file_objects[0]["mime"]
 					ogg = FileVersion()
@@ -219,13 +224,13 @@ class Hyrax(DaoSystem):
 					ogg.label = "Ogg"
 					ogg.filename = os.path.splitext(file_objects[0]["name"])[0] + ".ogg"
 					ogg.mime_type = "audio/ogg"
-					dao.file_versions = []
-					dao.file_versions.append(mp3)
-					dao.file_versions.append(ogg)
+					file.versions.append(mp3)
+					file.versions.append(ogg)
 				elif ext in video_exts:
 					original = FileVersion()
 					original.href = file_objects[0]["url"]
 					original.label = "Original"
+					original.is_original = "true"
 					original.filename = file_objects[0]["name"]
 					original.mime_type = file_objects[0]["mime"]
 					webm = FileVersion()
@@ -234,11 +239,9 @@ class Hyrax(DaoSystem):
 					webm.label = "WebM"
 					webm.filename = os.path.splitext(file_objects[0]["name"])[0] + ".webm"
 					webm.mime_type = "video/webm"
-					dao.file_versions = []
-					dao.file_versions.append(original)
-					dao.file_versions.append(webm)
+					file.versions.append(original)
+					file.versions.append(webm)
 				else:
-					#elif ext in original_exts:
 					original = FileVersion()
 					original.href = file_objects[0]["url"]
 					original.is_original = "true"
@@ -249,10 +252,12 @@ class Hyrax(DaoSystem):
 						original.is_access = "true"
 					else:
 						original.label = "Original"
-					dao.file_versions = []
-					dao.file_versions.append(original)
-				#else:
-				#	raise Exception("Unexpected file format for " + dao.uri + " : " + filename)
+					
+					file.versions.append(original)
+				
+				# append file to dao
+				dao.files.append(file)
+
 
 			else:
 				# these are really Components or aggregages of DOs currently managed in Hyrax
@@ -277,14 +282,18 @@ class Hyrax(DaoSystem):
 					do.rights_statement = rights
 					do.metadata = metadata
 					do.subjects = subjects
+
+					file = File()
+					file.thumbnail_href = file_objects["url"] + "?file=thumbnail"
 					fv = FileVersion()
 					fv.href = file_object["url"]
 					fv.is_access = "true"
+					fv.is_original = "true"
 					fv.filename = file_object["name"]
 					fv.mime_type = file_object["mime"]
-					do.file_versions.append(fv)
+					file.versions.append(fv)
+					do.files.append(file)
 					component.digital_objects.append(do)
-
 
 		# Extract content for better discovery
 		for dao in component.digital_objects:

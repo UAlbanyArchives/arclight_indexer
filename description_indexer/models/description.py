@@ -30,13 +30,20 @@ class Container(models.Base):
     sub_sub_container_indicator = fields.StringField()
 
 class FileVersion(models.Base):
-    # This is also a pcdm:File
     href = fields.StringField(required=True)
     label = fields.StringField()
     filename = fields.StringField()
     is_access = fields.StringField()
     is_original = fields.StringField()
     mime_type = fields.StringField()
+
+class File(models.Base):
+    # This is also a pcdm:File
+    label = fields.StringField()
+    thumbnail_href = fields.StringField()
+    # Searchable text or transcription content
+    content = fields.StringField()
+    versions = fields.ListField(FileVersion)
 
 class DigitalObject(models.Base):
     # This is also a pcdm:Object
@@ -56,9 +63,7 @@ class DigitalObject(models.Base):
     metadata = fields.DictField()
     subjects = fields.ListField(str)
 
-    file_versions = fields.ListField(FileVersion)
-    # Searchable text or transcription content
-    content = fields.StringField()
+    files = fields.ListField(File)
     
 
 class Component(models.Base):
