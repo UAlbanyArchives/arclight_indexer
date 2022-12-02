@@ -10,7 +10,7 @@ class Text():
 		pass
 
 	
-	def extract(href):
+	def extract(self, href):
 
 		r = requests.get(href, stream=True)
 		#r.raw.decode_content = True

@@ -25,7 +25,7 @@ class Hyrax(DaoSystem):
 		# Requirements for each need to be installed to initalize
 		self.tika = Tika()
 		self.text = Text()
-		self.ocr = Ocr()
+		#self.ocr = Ocr()
 
 
 	def get_mime_type(self, filename):
@@ -300,9 +300,10 @@ class Hyrax(DaoSystem):
 		priorities = (".txt", ".csv", ".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls", ".pdf", ".jpg", ".png", ".tif", ".wav", ".mp3", ".ogg", ".mpg", ".mp4", ".mov", ".avi", ".webm")
 
 		read_file = (".txt", ".csv")
-		tika_exts = (".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls")
-		tika_ocr = (".pdf")
-		ocr = (".jpg", ".png", ".tif")
+		tika_exts = (".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls", ".pdf", ".jpg", ".png", ".tif")
+		# Might break out OCR in the future to try something like PaddleOCR (https://github.com/PaddlePaddle/PaddleOCR) rather than Tesseract
+		#tika_ocr = (".pdf")
+		#ocr = (".jpg", ".png", ".tif")
 		audio = (".wav", ".mp3", ".ogg")
 		video = (".mpg", ".mp4", ".mov", ".avi", ".webm")
 		
@@ -338,14 +339,6 @@ class Hyrax(DaoSystem):
 
 								elif priority in tika_exts:
 									content = self.tika.extract(extract_file.href)
-
-								elif priority in tika_ocr:
-									content = self.tika.extract(extract_file.href)
-									if len(content.strip()) < 1:
-										content = self.ocr.extract(extract_file.href)
-
-								elif priority in ocr:
-									content = self.ocr.extract(extract_file.href)
 
 								if len(content.strip()) > 0:
 									# write to disk to speed reindexing

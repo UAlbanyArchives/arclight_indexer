@@ -36,7 +36,8 @@ class Arclight():
         
         for component in solrComponent.components:
             if component.ref_ssi in has_online_content:
-                component.has_online_content_ssim = ["Contains online items"]
+                if len (component.has_online_content_ssim) == 0:
+                    component.has_online_content_ssim = ["Contains online items"]
             childComponent = self.mark_online_content(component, has_online_content)
 
         return solrComponent
@@ -50,6 +51,7 @@ class Arclight():
         solrDocument.is_representative_ssm = digital_object.is_representative
         solrDocument.rights_statement_ssi = digital_object.rights_statement
         solrDocument.access_subjects_ssim.extend(digital_object.subjects)
+        solrDocument.has_online_content_ssim = ["Online access"]
         if digital_object.metadata:
             for field in digital_object.metadata.keys():
                 setattr(solrDocument, field + "_ssm", digital_object.metadata[field])

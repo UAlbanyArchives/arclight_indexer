@@ -5,6 +5,9 @@ class Tika():
 	"""
 	This class extracts text from office documents or pdfs using Apache Tika
 	requires tika-app.jar file in $TIKA_PATH
+	For OCR to work tesseract is also required
+	To OCR PDFs, you also need a tika-config.xml file in $TIKA_PATH per
+	https://stackoverflow.com/questions/51655510/how-do-you-enable-the-tesseractocrparser-using-tikaconfig-and-the-tika-command-l#answer-60404894
 	"""
 
 	def __init__(self):
@@ -20,11 +23,15 @@ class Tika():
 		else:
 			self.tika_encoding = "utf-8"
 		self.tika_path = "\"" + str(os.path.join(os.environ.get("TIKA_PATH"), "tika-app.jar")) + "\""
+		self.tika_config = "\"" + str(os.path.join(os.environ.get("TIKA_PATH"), "tika-config.xml")) + "\""
 
 	
 	def extract(self, href):
 
-		tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", href])
+		if os.path.isfile(self.tika_config):
+			tika_cmd = " ".join(["java", "-jar", self.tika_path, f"--config={self.tika_config}", "--text", href])
+		else:
+			tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", href])
 
 		#print ("running " + tika_cmd)
 		tika_content = subprocess.Popen(tika_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
