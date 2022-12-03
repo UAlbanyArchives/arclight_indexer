@@ -72,9 +72,11 @@ class Hyrax(DaoSystem):
 			if dao.uri.startswith("https://archives.albany.edu/catalog?f%5Barchivesspace_record_tesim"):
 				print (dao.uri)
 				record_json = requests.get(dao.uri + "?format=json").json()
+				continue
 			elif dao.uri.startswith("https://web.archive.org/web"):
 				print (dao.uri)
 				record_json = requests.get(dao.uri + "?format=json").json()
+				continue
 			else:
 				record_json = requests.get(dao.uri + "?format=json").json()
 

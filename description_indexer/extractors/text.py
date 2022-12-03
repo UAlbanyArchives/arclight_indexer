@@ -12,9 +12,11 @@ class Text():
 	
 	def extract(self, href):
 
+		content = ""
+
 		r = requests.get(href, stream=True)
 		#r.raw.decode_content = True
-		with open(r.content) as f:
-			content = f.read()
+		if r.status_code == 200:
+			content = r.content.decode()	
 
-			return content
+		return content
