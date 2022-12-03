@@ -168,8 +168,14 @@ class Hyrax(DaoSystem):
 			dao_id = dao.identifier
 			dao_uri = dao.uri
 
-			if len(file_objects) == 1:
+			manual_versions = False
+			manual_version_exceptions = ["8910kc626", "9019sk86q", "0c484314x", "d217r7481"]
+			if "/daos/" in dao.uri and dao.uri.split("/daos/")[1] in manual_version_exceptions:
+				manual_versions = True
+
+			if len(file_objects) == 1 or manual_versions:
 				# digital object with a single file
+				# or manual_versions with multiple files that are really versions
 
 				# single item was uploaded to hyrax, but converted into derivatives
 				# single digital objects that may have multiple versions
@@ -178,7 +184,7 @@ class Hyrax(DaoSystem):
 				audio_exts = [".mp3"]
 				video_exts = [".mpg", ".mp4", ".mov", ".avi"]
 
-				if len(set(extentions)) > 1:
+				if manual_versions == False and len(set(extentions)) > 1:
 					raise Exception("Unexpectedly discovered multiple file extentions for " + dao.url)
 				else:
 					ext = extentions[0]
@@ -190,7 +196,22 @@ class Hyrax(DaoSystem):
 				file = File()
 				file.identifier = file_objects[0]["url"].split("?")[0].split("/downloads/")[1]
 				file.thumbnail_href = file_objects[0]["url"] + "?file=thumbnail"
-				if ext in office_docs:
+				if manual_versions:
+					for fo in file_objects:
+						mv = FileVersion()
+						mv.href = fo['url']
+						mv.filename = fo['name']
+						mv.mime_type = fo['mime']
+						if fo['ext'].lower() == ".pdf":
+							mv.label = "PDF (Original)"
+							mv.is_original = "true"
+							mv.is_access = "true"
+						elif fo['ext'].lower() == ".csv":
+							mv.label = "CSV data"
+						elif fo['ext'].lower() == ".xlsx":
+							mv.label = "Spreadsheet"
+						file.versions.append(mv)
+				elif ext in office_docs:
 					original = FileVersion()
 					original.href = file_objects[0]["url"]
 					original.is_original = "true"
