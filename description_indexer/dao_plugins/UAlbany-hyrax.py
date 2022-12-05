@@ -68,14 +68,14 @@ class Hyrax(DaoSystem):
 				raise Exception ("ASpace DAO unexpectedly has multiple file versions! --> " + str(dao.uri))			
 
 			dao.metadata = {}
-			#print ("reading data from " + dao.uri + "?format=json")
+			print ("reading " + dao.uri + "?format=json")
 			if dao.uri.startswith("https://archives.albany.edu/catalog?f%5Barchivesspace_record_tesim"):
-				print (dao.uri)
 				#record_json = requests.get(dao.uri + "?format=json").json()
 				continue
 			elif dao.uri.startswith("https://web.archive.org/web"):
-				print (dao.uri)
 				#record_json = requests.get(dao.uri + "?format=json").json()
+				continue
+			elif dao.uri.startswith("https://wayback.archive-it.org"):
 				continue
 			else:
 				record_json = requests.get(dao.uri + "?format=json").json()
