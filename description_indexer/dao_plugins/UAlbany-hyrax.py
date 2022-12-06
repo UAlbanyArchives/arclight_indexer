@@ -353,7 +353,7 @@ class Hyrax(DaoSystem):
 						# Gather a list of all extentions in versions
 						exts = []
 						for fv in file.versions:
-							exts.append(os.path.splitext(fv.filename)[1])
+							exts.append(os.path.splitext(fv.filename)[1].lower())
 
 						for priority in priorities:
 							# Get the first match in priorities set
