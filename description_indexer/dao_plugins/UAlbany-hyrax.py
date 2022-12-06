@@ -24,7 +24,7 @@ class Hyrax(DaoSystem):
 		# initalize extractors
 		# Requirements for each need to be installed to initalize
 		self.tika = Tika()
-		self.text = Text()name
+		self.text = Text()
 		#self.ocr = Ocr()
 
 
