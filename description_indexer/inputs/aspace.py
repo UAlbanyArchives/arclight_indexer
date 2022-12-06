@@ -125,14 +125,13 @@ class ArchivesSpace():
 
         return records
 
-    def get_asnake_safely(self, uri, parent_uri, attempt = 0):
+    def get_asnake_safely(self, uri, attempt = 0):
         """
         ASnake calls sometimes fail with "Remote end closed connection without response"
         This retries up to 10 times.
 
         Parameters:
             uri (str): The URI we are trying to call.
-            parent_uri (str): The URI of the parent resource or archival_object
             attempt (int): a counter of the number of attempts
 
         Returns:
@@ -150,7 +149,6 @@ class ArchivesSpace():
 
         if not success:
             print (f"Failed ArchivesSnake query {uri} after {attempt} attempts.")
-            print (f"For object: {parent_uri}")
         else:
             return digital_object
 
@@ -292,7 +290,7 @@ class ArchivesSpace():
                 record.containers.append(container)
             elif instance['instance_type'] == "digital_object":
                 # this sometimes fails with "Remote end closed connection without response"
-                digital_object = self.get_asnake_safely(instance['digital_object']['ref'], apiObject['uri'])
+                digital_object = self.get_asnake_safely(instance['digital_object']['ref'])
                 if digital_object['publish'] == True:
                     # Since this model is for public-facing description, requiring a published file version with a uri otherwise treating as unpublished 
                     if "file_versions" in digital_object.keys() and len(digital_object['file_versions']) > 0:
@@ -337,7 +335,7 @@ class ArchivesSpace():
         recursive_level += 1
 
         for child in tree['children']:
-            component = self.client.get(child['record_uri']).json()            
+            component = self.get_asnake_safely(child['record_uri'])        
             subrecord = self.readToModel(component, eadid, child, collection_name, recursive_level)
             record.components.append(subrecord)
 
