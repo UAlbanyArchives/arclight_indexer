@@ -354,6 +354,7 @@ class Hyrax(DaoSystem):
 
 				for file in dao.files:
 					cache_file = os.path.join(cache_path, file.identifier + ".txt")
+					content = ""
 
 					if os.path.isfile(cache_file):
 						with open(cache_file, "r") as cache:
@@ -369,7 +370,6 @@ class Hyrax(DaoSystem):
 							# Get the first match in priorities set
 							if priority in exts:
 								extract_file = file.versions[exts.index(priority)]
-								content = ""
 
 								if priority in read_file:
 									content = self.text.extract(extract_file.href)

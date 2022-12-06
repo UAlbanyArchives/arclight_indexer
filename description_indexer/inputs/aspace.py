@@ -144,8 +144,9 @@ class ArchivesSpace():
                 digital_object = self.client.get(uri).json()
                 success = True
             except:
+                print (f"Attempt {str(attempt)} failed to query {uri}")
                 time.sleep(attempt)
-                self.get_asnake_safely(attempt)
+                self.get_asnake_safely(uri, attempt)
 
         if not success:
             print (f"Failed ArchivesSnake query {uri} after {attempt} attempts.")
