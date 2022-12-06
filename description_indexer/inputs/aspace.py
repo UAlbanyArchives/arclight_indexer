@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from iso639 import languages
 from asnake.client import ASnakeClient
 import asnake.logging as logging
@@ -123,6 +124,35 @@ class ArchivesSpace():
                 records.append(record)
 
         return records
+
+    def get_asnake_safely(self, uri, parent_uri, attempt = 0):
+        """
+        ASnake calls sometimes fail with "Remote end closed connection without response"
+        This retries up to 10 times.
+
+        Parameters:
+            uri (str): The URI we are trying to call.
+            parent_uri (str): The URI of the parent resource or archival_object
+            attempt (int): a counter of the number of attempts
+
+        Returns:
+            digital_object (dict): an ArchivesSpace API object returned by ArchivesSnake
+        """
+        success = False
+        while attempt < 11:
+            try:
+                attempt += 1
+                digital_object = self.client.get(uri).json()
+                success = True
+            except:
+                time.sleep(attempt)
+                self.get_asnake_safely(attempt)
+
+        if not success:
+            print (f"Failed ArchivesSnake query {uri} after {attempt} attempts.")
+            print (f"For object: {parent_uri}")
+        else:
+            return digital_object
 
     def readToModel(self, apiObject, eadid, tree, collection_name="", recursive_level=0):
         """
@@ -261,7 +291,8 @@ class ArchivesSpace():
                     container.sub_container_indicator = instance['sub_container']['indicator_3']
                 record.containers.append(container)
             elif instance['instance_type'] == "digital_object":
-                digital_object = self.client.get(instance['digital_object']['ref']).json()
+                # this sometimes fails with "Remote end closed connection without response"
+                digital_object = self.get_asnake_safely(instance['digital_object']['ref'], apiObject['uri'])
                 if digital_object['publish'] == True:
                     # Since this model is for public-facing description, requiring a published file version with a uri otherwise treating as unpublished 
                     if "file_versions" in digital_object.keys() and len(digital_object['file_versions']) > 0:
