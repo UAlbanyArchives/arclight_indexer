@@ -24,16 +24,18 @@ class Hyrax(DaoSystem):
 		# initalize extractors
 		# Requirements for each need to be installed to initalize
 		self.tika = Tika()
-		self.text = Text()
+		self.text = Text()name
 		#self.ocr = Ocr()
 
 
 	def get_mime_type(self, filename):
 
+		# this is easier than getting magic to work crossplatform atm
 		docmimes = {
 			".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 			".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-			".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+			".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+			".odt": "application/vnd.oasis.opendocument.text"
 			}
 
 		mimetype = mimetypes.MimeTypes().guess_type(filename)[0]
