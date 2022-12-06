@@ -35,7 +35,8 @@ class Hyrax(DaoSystem):
 			".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 			".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 			".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-			".odt": "application/vnd.oasis.opendocument.text"
+			".odt": "application/vnd.oasis.opendocument.text",
+			".rtf": "application/rtf"
 			}
 
 		mimetype = mimetypes.MimeTypes().guess_type(filename)[0]
@@ -338,7 +339,7 @@ class Hyrax(DaoSystem):
 		# for versions, this is a priortized list of exts to pull content from
 		priorities = (".txt", ".csv", ".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls", ".pdf", ".jpg", ".png", ".tif", ".wav", ".mp3", ".ogg", ".mpg", ".mp4", ".mov", ".avi", ".webm")
 
-		read_file = (".txt", ".csv")
+		read_file = (".txt", ".csv", ".rtf")
 		tika_exts = (".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls", ".pdf", ".jpg", ".png", ".tif")
 		# Might break out OCR in the future to try something like PaddleOCR (https://github.com/PaddlePaddle/PaddleOCR) rather than Tesseract
 		#tika_ocr = (".pdf")

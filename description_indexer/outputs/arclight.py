@@ -1,5 +1,7 @@
+import os
 import json
 import copy
+import time
 import pysolr
 from description_indexer.models.arclight import SolrCollection, SolrComponent
 
@@ -393,8 +395,26 @@ class Arclight():
 
         return solrDocument, has_online_content
 
-    def post(self, collection):
+
+    def post(self, collection, attempt = 0):
+        """
+        Posts data to Solr. This has failed for large sets with lots of content.
+        So it tries up to 10 times and then writes to disk.
+        """
 
         print ("POSTing data to Solr...")
-        self.solr.add([collection.to_struct()])
-        #print (json.dumps(collection.to_struct(), indent=4))
+        success = False
+        while success == False and attempt < 11:
+            attempt += 1
+            try:
+                self.solr.add([collection.to_struct()])
+                success = True
+            except:
+                print (f"Retrying POST to Solr, attempt {str(attempt)}.")
+                time.sleep(attempt)
+
+        if success == False:
+            output_file = os.path.join(os.path.expanduser("~"), ".description_indexer", collection.id + ".json")
+            print (f"Failed posting to Solr, writing to {output_file}")
+            with open(output_file, "w") as f:
+                f.write(json.dumps(collection.to_struct(), indent=4))

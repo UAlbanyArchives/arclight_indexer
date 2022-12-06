@@ -138,7 +138,7 @@ class ArchivesSpace():
             digital_object (dict): an ArchivesSpace API object returned by ArchivesSnake
         """
         success = False
-        while attempt < 11:
+        while success == False and attempt < 11:
             try:
                 attempt += 1
                 digital_object = self.client.get(uri).json()
@@ -146,7 +146,7 @@ class ArchivesSpace():
             except:
                 print (f"Attempt {str(attempt)} failed to query {uri}")
                 time.sleep(attempt)
-                self.get_asnake_safely(uri, attempt)
+                #self.get_asnake_safely(uri, attempt)
 
         if not success:
             print (f"Failed ArchivesSnake query {uri} after {attempt} attempts.")
