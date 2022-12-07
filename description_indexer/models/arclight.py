@@ -102,6 +102,21 @@ class SolrCollection(models.Base):
     file_access_ssm = fields.ListField(str)
     file_originals_ssm = fields.ListField(str)
 
+    # local item-level metadata
+    type_ssm = fields.ListField(str)
+    accession_ssm = fields.ListField(str)
+    processing_activity_ssm = fields.ListField(str)
+    accession_ssm = fields.ListField(str)
+    processing_activity_ssm = fields.ListField(str)
+    contributor_ssm = fields.ListField(str)
+    description_ssm = fields.ListField(str)
+    abstract_ssm = fields.ListField(str)
+    keyword_ssm = fields.ListField(str)
+    physical_dimensions_ssm = fields.ListField(str)
+    preservation_format_ssm = fields.ListField(str)
+    date_digitized_ssm = fields.ListField(str)
+    legacy_identifier_ssm = fields.ListField(str)
+    original_format_ssm = fields.ListField(str)
     
 
 class SolrComponent(SolrCollection):

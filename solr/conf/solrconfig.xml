@@ -171,7 +171,6 @@
          type_ssm
          accession_ssm
          processing_activity_ssm
-         extent_ssm
          contributor_ssm
          description_ssm
          abstract_ssm
