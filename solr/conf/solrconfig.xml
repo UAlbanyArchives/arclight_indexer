@@ -167,6 +167,20 @@
          parent_access_terms_ssm,
          names_coll_ssim
          places_ssim
+
+         type_ssm
+         accession_ssm
+         processing_activity_ssm
+         extent_ssm
+         contributor_ssm
+         description_ssm
+         abstract_ssm
+         keyword_ssm
+         physical_dimensions_ssm
+         preservation_format_ssm
+         date_digitized_ssm
+         legacy_identifier_ssm
+         original_format_ssm
          
          iiif_manifest_ssi
          thumbnail_href_sim
