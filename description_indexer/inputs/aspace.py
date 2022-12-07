@@ -106,7 +106,7 @@ class ArchivesSpace():
         else:
             eadid = resource["ead_id"]
             
-            tree = self.client.get(resource['tree']['ref']).json()
+            tree = self.get_asnake_safely(resource['tree']['ref'])
             record = self.readToModel(resource, eadid, tree)
             
             return record
@@ -232,7 +232,7 @@ class ArchivesSpace():
         # but this is a minimal implementation as I don't have good agent data to work with ¯\_(ツ)_/¯
         # Agents
         for agent_ref in apiObject['linked_agents']:
-            agent = self.client.get(agent_ref['ref']).json()
+            agent = self.get_asnake_safely(agent_ref['ref'])
             agentObj = Agent()
             agentObj.name  = agent['title']
             agentObj.agent_type = agent['agent_type'].split("agent_")[1]
@@ -242,7 +242,7 @@ class ArchivesSpace():
                 record.names.append(agentObj)
         # Subjects
         for subject_ref in apiObject['subjects']:
-            subject = self.client.get(subject_ref['ref']).json()
+            subject = self.get_asnake_safely(subject_ref['ref'])
             # ASpace allows multiple terms per subject, and each can be geo, topical, etc. so I'm just using the first one.
             if subject['terms'][0]['term_type'] == "geographic":
                 record.places.append(subject['title'])
@@ -275,7 +275,7 @@ class ArchivesSpace():
         for instance in apiObject["instances"]:
             if "sub_container" in instance.keys():
                 container = Container()
-                top_container = self.client.get(instance['sub_container']['top_container']['ref']).json()
+                top_container = self.get_asnake_safely(instance['sub_container']['top_container']['ref'])
                 if 'type' in top_container.keys():
                     container.top_container = top_container['type']
                 if 'indicator' in top_container.keys():
