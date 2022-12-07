@@ -113,8 +113,8 @@ class SolrCollection(models.Base):
     abstract_ssm = fields.ListField(str)
     keyword_ssm = fields.ListField(str)
     physical_dimensions_ssm = fields.ListField(str)
-    preservation_format_ssm = fields.ListField(str)
-    date_digitized_ssm = fields.ListField(str)
+    preservation_format_ssm = fields.StringField()
+    date_digitized_ssm = fields.StringField()
     legacy_identifier_ssm = fields.ListField(str)
     original_format_ssm = fields.ListField(str)
     
