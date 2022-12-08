@@ -27,6 +27,7 @@ setuptools.setup(
         "jsonmodels>=2.5.0,<3",
         "pysolr>=3.9.0,<4",
         "pyyaml>=6.0<7",
+        "chardet>=5.1.0,<6"
         "requests>=2.28.1,<3"
     ],
     python_requires=">=3.7",

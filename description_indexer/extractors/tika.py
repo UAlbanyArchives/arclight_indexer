@@ -35,7 +35,7 @@ class Tika():
 		else:
 			tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", href, self.null])
 
-		#print ("running " + tika_cmd)
+		print ("running " + tika_cmd)
 		tika_content = subprocess.Popen(tika_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out, err = tika_content.communicate()
 		if tika_content.returncode != 0:

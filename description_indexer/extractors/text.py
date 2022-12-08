@@ -1,4 +1,4 @@
-import os
+import chardet
 import requests
 
 class Text():
@@ -17,6 +17,20 @@ class Text():
 		r = requests.get(href, stream=True)
 		#r.raw.decode_content = True
 		if r.status_code == 200:
-			content = r.content.decode()	
+			try:
+				# try utf-8 first
+				content = r.content.decode("utf-8")
+			except:
+				try:
+					# try windows encoding
+					content = r.content.decode("cp1252")
+				except:
+					try:
+						# try to detect
+						encoding = chardet.detect(r.content)["encoding"]
+						content = r.content.decode(encoding)
+					except:
+						print ("Unable to decode file.")
+
 
 		return content
