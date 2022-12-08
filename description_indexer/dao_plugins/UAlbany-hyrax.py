@@ -71,7 +71,7 @@ class Hyrax(DaoSystem):
 				raise Exception ("ASpace DAO unexpectedly has multiple file versions! --> " + str(dao.uri))			
 
 			dao.metadata = {}
-			#print ("reading " + dao.uri + "?format=json")
+			print ("reading " + dao.uri + "?format=json")
 			if dao.uri.startswith("https://archives.albany.edu/catalog?f%5Barchivesspace_record_tesim"):
 				#record_json = requests.get(dao.uri + "?format=json").json()
 				continue
@@ -357,13 +357,15 @@ class Hyrax(DaoSystem):
 
 				for file in dao.files:
 					cache_file = os.path.join(cache_path, file.identifier + ".txt")
+					print ("looking for cache in " + cache_file)
 					content = ""
 
 					if os.path.isfile(cache_file):
+						print ("reading from cache file...")
 						with open(cache_file, "r") as cache:
 							content = cache.read()
 					else:
-
+						print ("extracting content...")
 						# Gather a list of all extentions in versions
 						exts = []
 						for fv in file.versions:
