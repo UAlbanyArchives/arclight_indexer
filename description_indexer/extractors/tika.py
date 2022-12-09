@@ -43,7 +43,7 @@ class Tika():
 			content = out.decode(self.tika_encoding)
 
 			# If no extracted text, then run tika again with config to OCR
-			if len(content.strip()) > 1 and os.path.isfile(self.tika_config):
+			if len(content.strip()) < 1 and os.path.isfile(self.tika_config):
 				tika_ocr = " ".join(["java", "-jar", self.tika_path, f"--config=\"{self.tika_config}\"", "--text", href, self.null])
 				
 				print ("no embedded text found, so running " + tika_ocr)
