@@ -29,11 +29,9 @@ class Tika():
 
 	
 	def extract(self, href):
-		
-		if os.path.isfile(self.tika_config):
-			tika_cmd = " ".join(["java", "-jar", self.tika_path, f"--config=\"{self.tika_config}\"", "--text", href, self.null])
-		else:
-			tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", href, self.null])
+
+		# First run tika without config to OCR
+		tika_cmd = " ".join(["java", "-jar", self.tika_path, "--text", href, self.null])
 
 		print ("running " + tika_cmd)
 		tika_content = subprocess.Popen(tika_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -41,6 +39,20 @@ class Tika():
 		if tika_content.returncode != 0:
 			print (err)
 			raise Exception("Unable to access Apache Tika. Is $TIKA_PATH set correctly?")
-		content = out.decode(self.tika_encoding)
+		else:
+			content = out.decode(self.tika_encoding)
+
+			# If no extracted text, then run tika again with config to OCR
+			if len(content.strip()) > 1 and os.path.isfile(self.tika_config):
+				tika_ocr = " ".join(["java", "-jar", self.tika_path, f"--config=\"{self.tika_config}\"", "--text", href, self.null])
+				
+				print ("no embedded text found, so running " + tika_ocr)
+				tika_content = subprocess.Popen(tika_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				out, err = tika_content.communicate()
+				if tika_content.returncode != 0:
+					print (err)
+					raise Exception("Unable to access Apache Tika. Is $TIKA_PATH set correctly?")
+				else:
+					content = out.decode(self.tika_encoding)
 
 		return content
