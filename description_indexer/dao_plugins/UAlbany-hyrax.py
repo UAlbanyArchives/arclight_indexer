@@ -81,7 +81,14 @@ class Hyrax(DaoSystem):
 			elif dao.uri.startswith("https://wayback.archive-it.org"):
 				continue
 			else:
-				record_json = requests.get(dao.uri + "?format=json").json()
+				try:
+					# Some uris are to searches and such, like 
+					# https://archives.albany.edu/description/catalog/apap015aspace_530e08e0488cdaaf64450af97ec84017
+					# and https://archives.albany.edu/description/catalog/apap015aspace_1e5aa0b342f49f35ca68c69ade6527c7
+					record_json = requests.get(dao.uri + "?format=json").json()
+				except:
+					print (f"Not a Hyrax object recors: {dao.uri }?format=json")
+					continue
 
 			# In cases where there's only one DO, in local practice, it's representative unless its set as "part"
 			if only_dao:
