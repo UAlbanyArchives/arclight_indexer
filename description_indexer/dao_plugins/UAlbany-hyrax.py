@@ -347,7 +347,7 @@ class Hyrax(DaoSystem):
 		priorities = (".txt", ".csv", ".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls", ".pdf", ".jpg", ".png", ".tif", ".wav", ".mp3", ".ogg", ".mpg", ".mp4", ".mov", ".avi", ".webm")
 
 		read_file = (".txt", ".csv", ".rtf")
-		tika_exts = (".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls", ".pdf", ".jpg", ".png", ".tif")
+		tika_exts = (".docx", ".pptx", ".xlsx", ".doc", ".ppt", ".xls", ".pdf")#, ".jpg", ".png", ".tif")
 		# Might break out OCR in the future to try something like PaddleOCR (https://github.com/PaddlePaddle/PaddleOCR) rather than Tesseract
 		#tika_ocr = (".pdf")
 		#ocr = (".jpg", ".png", ".tif")
