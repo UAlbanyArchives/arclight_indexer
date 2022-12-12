@@ -281,6 +281,8 @@ class Arclight():
         for note in dir(record):
             if note in note_translations.keys():
                 note_text = getattr(record, note)
+                if len(str(note_text)) > 32766:
+                    raise Exception(f"{note} note in {record.id} is too long for Solr's 32766 character field limit.")
                 setattr(solrDocument, note_translations[note], note_text)
                 if note == "accessrestrict":
                     inherited_data["parent_access_restrict"] = []
@@ -413,8 +415,10 @@ class Arclight():
                 print (f"Retrying POST to Solr, attempt {str(attempt)}.")
                 time.sleep(attempt)
 
+        # write all the data to the disk for reindexing
+        output_file = os.path.join(os.path.expanduser("~"), ".description_indexer", collection.id + ".json")
+        with open(output_file, "w") as f:
+            f.write(json.dumps(collection.to_struct(), indent=4))
+
         if success == False:
-            output_file = os.path.join(os.path.expanduser("~"), ".description_indexer", collection.id + ".json")
-            print (f"Failed posting to Solr, writing to {output_file}")
-            with open(output_file, "w") as f:
-                f.write(json.dumps(collection.to_struct(), indent=4))
+            print (f"Failed posting to Solr, check data at {output_file}")
