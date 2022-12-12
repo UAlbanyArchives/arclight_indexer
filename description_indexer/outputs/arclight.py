@@ -56,7 +56,7 @@ class Arclight():
         solrDocument.has_online_content_ssim = ["Online access"]
         if digital_object.metadata:
             for field in digital_object.metadata.keys():
-                setattr(solrDocument, field + "_ssi", digital_object.metadata[field])
+                setattr(solrDocument, field + "_ssim", digital_object.metadata[field])
         file_content = []
         if hasattr(digital_object, "iiif_manifest") and len(digital_object.iiif_manifest) > 0:
             solrDocument.iiif_manifest_ssi = digital_object.iiif_manifest
