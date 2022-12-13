@@ -169,7 +169,7 @@
          places_ssim
          
          iiif_manifest_ssi
-         thumbnail_href_sim
+         thumbnail_href_ssm
          label_ssi
          dao_identifier_ssi
          is_representative_ssm
