@@ -282,14 +282,16 @@ class Arclight():
             if note in note_translations.keys():
                 note_text = getattr(record, note)
                 if len(str(note_text)) > 32766:
-                    raise Exception(f"{note} note in {record.id} is too long for Solr's 32766 character field limit.")
-                setattr(solrDocument, note_translations[note], note_text)
-                if note == "accessrestrict":
-                    inherited_data["parent_access_restrict"] = []
-                    inherited_data["parent_access_restrict"].extend(note_text)
-                if note == "userestrict":
-                    inherited_data["parent_access_terms"] = []
-                    inherited_data["parent_access_terms"].extend(note_text)
+                    #raise Exception(f"{note} note in {record.id} is too long for Solr's 32766 character field limit.")
+                    print (f"{note} note in {record.id} is too long for Solr's 32766 character field limit.")
+                else:
+                    setattr(solrDocument, note_translations[note], note_text)
+                    if note == "accessrestrict":
+                        inherited_data["parent_access_restrict"] = []
+                        inherited_data["parent_access_restrict"].extend(note_text)
+                    if note == "userestrict":
+                        inherited_data["parent_access_terms"] = []
+                        inherited_data["parent_access_terms"].extend(note_text)
 
         # Containers
         # This is a bit nuts, but it was just as much code as a function so I left it explicit
