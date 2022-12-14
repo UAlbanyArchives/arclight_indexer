@@ -91,7 +91,6 @@ class SolrCollection(models.Base):
     is_representative_ssm = fields.StringField()
     metadata = fields.ListField(dict)
     rights_statement_ssi = fields.StringField()
-    content_tesim = fields.StringField()
     content_teim = fields.StringField()
 
     # for file versions if there's no iiif manifest available

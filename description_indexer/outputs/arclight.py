@@ -78,7 +78,6 @@ class Arclight():
                             getattr(solrDocument, fv_mappings[desc_attr]).append("")
                         else:
                             getattr(solrDocument, fv_mappings[desc_attr]).append(getattr(file_version, desc_attr))
-        solrDocument.content_tesim = "\n---\n".join(file_content)
         solrDocument.content_teim = "\n---\n".join(file_content)
 
         return solrDocument
