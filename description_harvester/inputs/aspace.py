@@ -1,5 +1,8 @@
 import os
 import sys
+from lxml import etree
+from io import StringIO
+from typing import List
 from iso639 import languages
 from asnake.client import ASnakeClient
 import asnake.logging as logging
@@ -51,6 +54,31 @@ class ArchivesSpace():
     @property
     def dao_system_map(self):
         return DaoSystem.registry
+
+
+    def extract_xpath_text(self, text: str) -> List[str]:
+        try:
+            # Parse the string as HTML content (allowing lenient parsing with 'recover=True')
+            parser = etree.HTMLParser(recover=True)
+            tree = etree.parse(StringIO(text), parser)
+
+            # Find all elements, excluding <html> and <body> tags
+            elements = tree.xpath("//*[not(self::html or self::body)]")
+
+            # Process elements and split text by newlines
+            cleaned_texts = [
+                line.strip()  # Strip any leading/trailing whitespace from each line
+                for e in elements
+                for line in etree.tostring(e, encoding="unicode", method="html").splitlines()  # Split into lines
+                if line.strip()  # Only include non-empty lines
+            ]
+
+            return cleaned_texts
+
+        except etree.XMLSyntaxError as e:
+            # Handle parsing errors by returning text split by newlines
+            print(f"Error parsing HTML: {e}")
+            return [line.strip() for line in text.splitlines() if line.strip()]  # Handle raw text splitting by lines
 
 
     def read(self, id):
@@ -145,6 +173,7 @@ class ArchivesSpace():
         record = Component()
         
         record.title = apiObject["title"]
+        record.title_filing_ssi = apiObject.get("finding_aid_filing_title", None)
         record.repository = self.repo_name
         record.level = apiObject["level"]
 
@@ -204,12 +233,14 @@ class ArchivesSpace():
             if agent_ref['role'] == "creator":
                 record.creators.append(agentObj)
             else:
-                record.names.append(agentObj)
+                record.agents.append(agentObj)
         # Subjects
         for subject_ref in apiObject['subjects']:
             subject = self.client.get(subject_ref['ref']).json()
             # ASpace allows multiple terms per subject, and each can be geo, topical, etc. so I'm just using the first one.
-            if subject['terms'][0]['term_type'] == "geographic":
+            if subject['terms'][0]['term_type'] == "genre_form":
+                record.genreform.append(subject['title'])
+            elif subject['terms'][0]['term_type'] == "geographic":
                 record.places.append(subject['title'])
             else:
                 record.subjects.append(subject['title'])
@@ -217,6 +248,8 @@ class ArchivesSpace():
         # Notes
         for note in apiObject["notes"]:
             if note['publish'] == True:
+                if "label" in note.keys():
+                    setattr(record, note["type"] + "_heading", note["label"])
                 if note["jsonmodel_type"] == "note_singlepart":
                     setattr(record, note["type"], note["content"])
                 else:
@@ -224,7 +257,7 @@ class ArchivesSpace():
                     for subnote in note["subnotes"]:
                         if subnote['publish'] == True:
                             if "content" in subnote.keys():
-                                note_text.append(subnote["content"])
+                                note_text.extend(self.extract_xpath_text(subnote["content"]))
                             elif subnote['jsonmodel_type'] == "note_chronology":
                                 events = []
                                 for event in subnote["items"]:

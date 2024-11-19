@@ -22,10 +22,13 @@ setuptools.setup(
     entry_points={"console_scripts": ["harvest=description_harvester:harvest"]},
     install_requires=[
         "archivessnake>=0.9.1,<1",
+        "beautifulsoup4>=4.12.0",
         "black>=22.1.0,<23",
         "iso-639>=0.4.5,<1",
+        "lxml>=5.0.0",
         "pysolr>=3.9.0,<4",
         "pyyaml>=6.0,<7",
+        "jsonmodels",
         "requests>=2.28.1,<3"
     ],
     python_requires=">=3.7",
